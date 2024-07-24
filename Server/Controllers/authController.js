@@ -21,8 +21,14 @@ exports.login = asyncHandler(async (req, res, next) => {
   if (!user || user.dataValues.password_hash !== password) {
     return next(new ApiError("Credentials are wrong!", 404));
   }
+  
+  const payload = {
+    id: user.id,
+    username: user.username,
+    role: user.role
+  };
 
-  const token = await jwt.sign(user.id, process.env.JWT_SECRET_KEY);
+  const token = await jwt.sign(payload, process.env.JWT_SECRET_KEY);
   res.status(200).json({ status: "success", token });
 });
 
