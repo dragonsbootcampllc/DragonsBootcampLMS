@@ -17,7 +17,7 @@ app.use(morgan("dev"));
 // db connection
 
 sequelize
-  .sync()
+  .sync({alter: true})
   .then(() => {
     console.log("Database synchronized");
   })
