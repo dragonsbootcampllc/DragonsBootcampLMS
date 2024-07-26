@@ -5,9 +5,10 @@ function generateOTP(length = 6) {
     digits: true, 
     alphabets: false, 
     upperCaseAlphabets: false, 
-    specialChars: false 
+    specialChars: false,
+    lowerCaseAlphabets: false,
   });
   return otp;
 }
 
-module.exports = { generateOTP };
+module.exports =  generateOTP;
