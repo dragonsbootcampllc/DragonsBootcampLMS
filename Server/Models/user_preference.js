@@ -11,13 +11,19 @@ UserPreference.init({
       key: 'id',
     },
     onDelete: 'CASCADE',
+    allowNull: false,
   },
-  preferenceKey: {
+  theme: {
     type: DataTypes.STRING,
-    primaryKey: true,
+    defaultValue: 'light',
   },
-  preferenceValue: {
-    type: DataTypes.TEXT,
+  notification: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true,
+  },
+  language: {
+    type: DataTypes.STRING,
+    defaultValue: 'en', 
   },
 }, {
   sequelize,

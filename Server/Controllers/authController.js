@@ -1,5 +1,6 @@
 const { Op } = require("sequelize");
 const { User } = require("../Models/index.js");
+const {UserPreference} = require('../Models/index.js')
 const asyncHandler = require("express-async-handler");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
@@ -7,6 +8,7 @@ const ApiError = require("../utils/ApiError");
 const generateOTP = require("../utils/GenerateOTP.js");
 const sendEmail = require("../Services/Mailer.js");
 const crypto = require("crypto");
+
 
 
 async function signToken(userId) {
@@ -203,7 +205,22 @@ exports.login = asyncHandler(async (req, res, next) => {
 
   const token = await signToken(user.id);
 
-  res.status(200).json({ status: "success", token });
+  const user_preferences = await UserPreference.findOne({
+    where:
+    {
+      userId: user.id,
+    },
+  })
+  try {
+    if (user_preferences) {
+      return res.status(200).json({status: "success", token});
+    }
+    const preferences = await UserPreference.create({
+      userId: user.id,
+      });
+  } catch (err) {
+    return next(new ApiError(err.message, 500));
+  }
 });
 
 exports.protect = asyncHandler(async (req, res, next) => {
@@ -218,7 +235,8 @@ exports.protect = asyncHandler(async (req, res, next) => {
   //  2) verify token
   const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
   // 3) check if user exist
-  const user = await User.findById(decoded.userId);
+  console.log(decoded.userId);
+  const user = await User.findByPk(decoded.userId);
   if (!user) {
     return next(
       new ApiError("user that belong to this token is no longer exist", 401)
