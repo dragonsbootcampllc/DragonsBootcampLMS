@@ -31,6 +31,14 @@ StreamingContent.init({
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW,
   },
+  lectureId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+        modelName: 'lectures',
+        key: 'id',
+   },
+  },
 }, {
   sequelize,
   modelName: 'StreamingContent',

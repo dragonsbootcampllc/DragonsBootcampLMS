@@ -75,7 +75,7 @@ User.init({
   },
   passwordResetExpires:{
     type: DataTypes.DATE,
-  }
+  },
 }, {
   hooks:{
     beforeCreate: async (user, options) => {

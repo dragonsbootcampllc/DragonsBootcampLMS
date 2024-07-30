@@ -14,9 +14,24 @@ const DiscussionThread = require("./discussion_thread");
 const DiscussionPost = require("./discussion_post");
 const ChatMessage = require("./chat_message");
 const Notification = require("./notification");
+const Lecture = require('./lecture');
+const Task = require('./task');
+const Course = require('./coures');
 
 
 // Define associations
+Course.hasMany(Lecture, { foreignKey: 'courseId' });
+Lecture.belongsTo(Course, { foreignKey: 'courseID' });
+
+Lecture.hasMany(Task, { foreignKey: 'lectureId' });
+Task.belongsTo(Lecture, { foreignKey: 'lectureId' });
+
+Lecture.hasMany(Content, { foreignKey: 'lectureId' });
+Content.belongsTo(Lecture, { foreignKey: 'lectureId' })
+
+Lecture.hasOne(StreamingContent, { foreignKey: 'lectureId' });
+StreamingContent.belongsTo(Lecture, { foreignKey: 'lectureId' });
+
 User.hasOne(UserProfile, { foreignKey: "userId" });
 UserProfile.belongsTo(User, { foreignKey: "userId" });
 
@@ -62,6 +77,7 @@ module.exports = {
   UserProfile,
   UserActivity,
   UserPreference,
+  Course,
   AIInsight,
   StreamingContent,
   BookResource,
@@ -70,4 +86,6 @@ module.exports = {
   DiscussionPost,
   ChatMessage,
   Notification,
+  Lecture,
+  Task,
 };
