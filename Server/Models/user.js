@@ -1,6 +1,5 @@
 const { Model, DataTypes } = require('sequelize');
 const bcrypt = require('bcrypt');
-const argon2 = require('argon2');
 const crypto = require('crypto');
 const sequelize = require('../config/database');
 
@@ -28,7 +27,7 @@ class User extends Model {
     return false;
   };
   async comparePassword(password){
-    return await argon2.verify(this.password_hash,password);
+    return await bcrypt.compare(password, this.password_hash);
   }
 }
 
@@ -78,10 +77,8 @@ User.init({
   },
 }, {
   hooks:{
-    beforeCreate: async (user, options) => {
-      user.password_hash = await bcrypt.hash(user.password_hash,4);
-    },
     beforeSave: async (user, options) => {
+      console.log('Saving user');
       if (user.changed('password_hash')) {
         user.password_hash = await bcrypt.hash(user.password_hash,4);
       }

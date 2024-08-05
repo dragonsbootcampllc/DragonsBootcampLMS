@@ -26,7 +26,6 @@ async function signToken(userId) {
 // =========== Controllers ============
 
 exports.SignUp = asyncHandler(async (req, res, next) => {
-  console.log(req.body);
   const { username, email, role, password } = req.body;
   if (!username || !password || !role || !email) {
     return next(
@@ -39,25 +38,18 @@ exports.SignUp = asyncHandler(async (req, res, next) => {
       username,
     },
   });
-  if (name_not_taken) {
-    if (!name_not_taken.verified) {
-      return next(
-          new ApiError("You Need To verfiy your account", 400)
-        );
-    }
-    
-    return next(
-      new ApiError("username is already not taken", 400)
-    );
-  }
   //validate email
   const email_not_taken = await User.findOne({
     where: {
       email,
     },
   });
-  if (email_not_taken) {
-    if (!email_not_taken.verified) {
+  if (email_not_taken || name_not_taken) {
+    if (!email_not_taken.verified && new Date(email_not_taken.otp_expiry_time) > Date.now()) {
+      req.userId = email_not_taken.id;
+      return next();
+    }
+    if(!email_not_taken.verified && new Date(email_not_taken.otp_expiry_time) < Date.now()){
       return next(new ApiError("You Need To verfiy your account", 400));
     }
       return next(
@@ -94,14 +86,15 @@ exports.sendOTP = asyncHandler(async (req, res, next) => {
     });
   }
 
-  if (!user.verified && user.otp_expiry_time > Date.now()) {
+  // if the token date is not expired 
+  if (!user.verified && user.otp && new Date(user.otp_expiry_time) < Date.now()) {
     return next(
       new ApiError("You have already requested an OTP", 400)
     );
   }
 
   const new_otp = generateOTP(6);
-
+  console.log(new_otp);
   const otp_expiry_time = Date.now() + 5 * 60 * 1000; // 5 Mins after otp is sent
 
   const affectedCount = await User.update(
@@ -194,7 +187,12 @@ exports.login = asyncHandler(async (req, res, next) => {
   });
 
   // ***** SEE: uncomment after the signup endpoint finished *****
-  if (!user || !(await bcrypt.compare(password,user.password_hash))) {
+  const isPasswordCorrect = await bcrypt.compare(password,user.password_hash);
+  console.log(user);
+  console.log(user.password_hash);
+  console.log(isPasswordCorrect);
+  
+  if (!isPasswordCorrect) {
     return next(new ApiError("Password are wrong!", 404));
   }
 
