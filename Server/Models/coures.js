@@ -29,7 +29,9 @@ Course.init({
 }, {
     sequelize,
     modelName: 'Course',
-    tableName: 'courses'
+    tableName: 'courses',
+    timestamps: true,
+
 });
 
 module.exports = Course;

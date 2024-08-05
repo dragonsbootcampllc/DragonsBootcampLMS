@@ -10,7 +10,7 @@ Task.init({
         autoIncrement: true,
     },
     type: {
-        type: DataTypes.ENUM('text', 'code', 'option'),
+        type: DataTypes.ENUM('text', 'code', 'options'),
         allowNull: false,
     },
     description: {
@@ -48,7 +48,8 @@ Task.init({
 }, {
     sequelize,
     modelName: 'Task',
-    tableName: 'tasks'
+    tableName: 'tasks',
+    timestamps: true,
 });
 
 module.exports = Task;

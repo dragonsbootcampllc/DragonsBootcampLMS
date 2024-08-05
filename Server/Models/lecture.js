@@ -32,6 +32,7 @@ Lecture.init({
     },
     courseId: {
         type: DataTypes.INTEGER,
+        allowNull: false,
         references: {
             model: 'courses',
             key: 'id',
@@ -41,6 +42,7 @@ Lecture.init({
     sequelize,
     modelName: 'Lecture',
     tableName: 'lectures',
+    timestamps: true,
 });
 
 module.exports = Lecture;
