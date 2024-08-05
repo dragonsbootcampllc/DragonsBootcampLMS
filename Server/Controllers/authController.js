@@ -94,7 +94,6 @@ exports.sendOTP = asyncHandler(async (req, res, next) => {
   }
 
   const new_otp = generateOTP(6);
-  console.log(new_otp);
   const otp_expiry_time = Date.now() + 5 * 60 * 1000; // 5 Mins after otp is sent
 
   const affectedCount = await User.update(
@@ -188,10 +187,9 @@ exports.login = asyncHandler(async (req, res, next) => {
 
   // ***** SEE: uncomment after the signup endpoint finished *****
   const isPasswordCorrect = await bcrypt.compare(password,user.password_hash);
-  console.log(user);
-  console.log(user.password_hash);
-  console.log(isPasswordCorrect);
-  
+  if(!user){
+    return next(new ApiError("User not found", 404));
+  }
   if (!isPasswordCorrect) {
     return next(new ApiError("Password are wrong!", 404));
   }
@@ -233,7 +231,6 @@ exports.protect = asyncHandler(async (req, res, next) => {
   //  2) verify token
   const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
   // 3) check if user exist
-  console.log(decoded.userId);
   const user = await User.findByPk(decoded.userId);
   if (!user) {
     return next(

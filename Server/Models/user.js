@@ -78,7 +78,6 @@ User.init({
 }, {
   hooks:{
     beforeSave: async (user, options) => {
-      console.log('Saving user');
       if (user.changed('password_hash')) {
         user.password_hash = await bcrypt.hash(user.password_hash,4);
       }
