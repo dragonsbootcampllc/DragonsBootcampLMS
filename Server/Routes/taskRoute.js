@@ -1,4 +1,4 @@
-const {uploadTask, getTaskById, getAllTasksForLecture, updateTask, deleteTaskById} = require('../Controllers/taskController');
+const {uploadTask, getTaskById, updateTask, deleteTaskById} = require('../Controllers/taskController');
 const verifyRole = require('../utils/verifyRole');
 const {taskValidator} = require('../utils/validators/taskValidator');
 const router = require('express').Router();
