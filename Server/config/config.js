@@ -18,7 +18,7 @@ const parseDatabaseUrl = (url) => {
   }
 };
 
-const config = process.env.DATABASE_URL ? parseDatabaseUrl(process.env.DATABASE_URL) : {
+const config = {
   username: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
