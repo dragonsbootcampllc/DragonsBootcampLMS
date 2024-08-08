@@ -8,7 +8,6 @@ var transporter = nodemailer.createTransport({
   },
 });
 function sendEmail(to,subject,message){
-    return;
     var mailOptions = {
         from: "ahmednagh2005@gmail.com",
         to: to,
