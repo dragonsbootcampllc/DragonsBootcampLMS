@@ -63,26 +63,6 @@ exports.getTaskById = asyncHandler (async (req, res, next) => {
     }
 });
 
-exports.getAllTasksForLecture = asyncHandler(async (req, res, next) => {
-    const lectureId = req.params.lectureId;
-    try {
-        const tasks = await Task.findAll({where: {
-            lectureId,
-        }
-    });
-        if (!tasks) {
-            return next (
-                new ApiError("no tasks found for this lecture_id", 404)
-            );
-        }
-        return res.status(200).json(tasks);
-    } catch (err) {
-        return next (
-            new ApiError(err.message, 500)
-        );
-    }
-})
-
 exports.updateTask = asyncHandler(async (req, res, next) => {
     const id = req.params.id;
 

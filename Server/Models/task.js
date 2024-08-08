@@ -15,6 +15,7 @@ Task.init({
     },
     description: {
         type: DataTypes.TEXT,
+        allowNull: false,
     },
     text: {
         type: DataTypes.TEXT,
@@ -27,7 +28,6 @@ Task.init({
     },
     answer: {
         type: DataTypes.TEXT,
-        allowNull: false,
     },
     startTime: {
         type: DataTypes.DATE,
