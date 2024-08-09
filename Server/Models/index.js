@@ -20,11 +20,19 @@ const Course = require('./coures');
 
 
 // Define associations
-Course.hasMany(Lecture, { foreignKey: 'courseId' });
-Lecture.belongsTo(Course, { foreignKey: 'courseID' });
+Course.hasMany(Lecture, { foreignKey: 'courseId',
+  as: 'lectures',
+ });
+Lecture.belongsTo(Course, { foreignKey: 'courseID',
+  as: 'course',
+ });
 
-Lecture.hasMany(Task, { foreignKey: 'lectureId' });
-Task.belongsTo(Lecture, { foreignKey: 'lectureId' });
+Lecture.hasMany(Task, { foreignKey: 'lectureId',
+  as: 'tasks',
+ });
+Task.belongsTo(Lecture, { foreignKey: 'lectureId',
+  as: 'lecture',
+ });
 
 Lecture.hasMany(Content, { foreignKey: 'lectureId' });
 Content.belongsTo(Lecture, { foreignKey: 'lectureId' })
