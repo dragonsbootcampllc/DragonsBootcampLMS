@@ -187,6 +187,7 @@ exports.login = asyncHandler(async (req, res, next) => {
 
   // ***** SEE: uncomment after the signup endpoint finished *****
   const isPasswordCorrect = await bcrypt.compare(password,user.password_hash);
+
   if(!user){
     return next(new ApiError("User not found", 404));
   }
@@ -207,13 +208,15 @@ exports.login = asyncHandler(async (req, res, next) => {
       userId: user.id,
     },
   })
+
   try {
-    if (user_preferences) {
-      return res.status(200).json({status: "success", token});
-    }
-    const preferences = await UserPreference.create({
-      userId: user.id,
+    if (!user_preferences) {
+      const preferences = await UserPreference.create({
+        userId: user.id,
       });
+    }
+    
+    return res.status(200).json({status: "success", token});
   } catch (err) {
     return next(new ApiError(err.message, 500));
   }
@@ -230,8 +233,9 @@ exports.protect = asyncHandler(async (req, res, next) => {
   const token = req.headers.authorization.split(" ")[1];
   //  2) verify token
   const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+
   // 3) check if user exist
-  const user = await User.findByPk(decoded.userId);
+  const user = await User.findByPk(decoded.id);
   if (!user) {
     return next(
       new ApiError("user that belong to this token is no longer exist", 401)
