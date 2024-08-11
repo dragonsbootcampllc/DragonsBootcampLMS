@@ -817,6 +817,100 @@
   ```
 
 
+  - **Notification endpoints**
+
+   ```
+  GET /api/notifications/:userId/:read:
+  ```
+
+  Retrieve All Notification By User Optional Query Parameter: ?read=true or ?read=false.
+
+  Response:
+
+  ```json
+  [
+    {
+     "notifications": [
+    {
+      "id": 1,
+      "userId": 1,
+      "notificationType": "New Message",
+      "notificationContent": {
+        "body": "You have received a new message."
+      },
+      "read": false,
+      "createdAt": "2024-08-11T12:34:56.000Z"
+    },
+    {
+      "id": 2,
+      "userId": 1,
+      "notificationType": "Reminder",
+      "notificationContent": {
+        "body": "Your subscription is about to expire."
+      },
+      "read": false,
+      "createdAt": "2024-08-10T08:45:12.000Z"
+    }
+  ]
+  }
+
+  ]
+  ```
+
+  ```
+  POST /api/notifications/
+  ```
+
+  Send Notification to user.
+
+  Response:
+
+  ```json
+  [
+    {
+    "userId": 1,
+  "notificationType": "New Message",
+  "notificationContent": {
+    "body": "You have received a new message."
+  },
+  "fcmToken": "DEVICE_FCM_TOKEN"
+  }
+
+  ]
+  ```
+
+ ```
+  PUT /api/notifications/:id/read
+  ```
+
+  Mark a specific notification as read.
+
+  Response:
+
+  ```json
+  [
+    {
+   "message": "Notification marked as read.",
+  "notification": {
+    "id": 1,
+    "userId": 1,
+    "notificationType": "New Message",
+    "notificationContent": {
+      "body": "You have received a new message."
+    },
+    "read": true,
+    "createdAt": "2024-08-11T12:34:56.000Z"
+  }
+  }
+
+  ]
+  ```
+
+  
+
+
+
+
 
 
 
