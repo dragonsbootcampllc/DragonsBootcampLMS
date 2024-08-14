@@ -1,5 +1,6 @@
 const { Content } = require('../Models/content');
 const { Lecture } = require('../Models/lecture');
+const { validationResult } = require('express-validator');
 const asyncHandler = require('express-async-handler');
 const ApiError = require('../utils/ApiError');
 
@@ -21,29 +22,29 @@ exports.ensureLectureExists = asyncHandler(async (lectureId, next) => {
  * @access Educator
  */
 exports.createContent = asyncHandler(async (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return next(new ApiError(errors.array().map(err => err.msg).join(', '), 400));
+    }
+
     const { title, description, type, url, file, text} = req.body;
     const lectureId = req.params.id;
     const uploadedBy = req.user.id;
 
     await ensureLectureExists(lectureId, next);
 
-    if (!title || !description || !type || !url || !file || !text || !lectureId) {
-        return next (
-            new ApiError("All fields are required", 400)
-        );
-    }
-
     try {
         const content = await Content.create({
             title,
             description,
             type,
-            url,
-            file,
-            text,
+            url: url || null,
+            file: file || null,
+            text: text || null,
             uploadedBy,
             lectureId,
         });
+
         return res.status(201).json(content);
     } catch (err) {
         return next(new ApiError(err.message, 500));
