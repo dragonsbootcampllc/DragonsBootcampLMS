@@ -1,4 +1,4 @@
-const { check } = require('express-validator');
+const { check, body } = require('express-validator');
 
 exports.contentValidator = [
     check('title')
