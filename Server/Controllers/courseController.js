@@ -3,25 +3,22 @@ const asyncHandler = require('express-async-handler');
 const ApiError = require('../utils/ApiError');
 
  exports.createCourse = asyncHandler(async (req, res, next) => {
-    const { name, description, educatorId, lectures } = req.body;
+    const { name, description, lectures } = req.body;
+    const user = req.user;
 
-    if (!name || !description || !educatorId || !lectures) {
+    if (!name || !description || !lectures) {
         return next(
             new ApiError("All fields are required", 400)
         );
     }
-
     try{
-
         const lecturesCount = lectures.length;
-
         const course = await Course.create({
             name,
             description,
-            educatorId,
+            educatorId:user.id,
             lecturesCount
         });
-
         for(const lectureData of lectures){
             const lecture = await Lecture.create({
                 startTime: lectureData.startTime,
@@ -33,18 +30,18 @@ const ApiError = require('../utils/ApiError');
                 courseId: course.id
             });
 
-        for(const taskData of lectureData.tasks){
-            const task = await Task.create({
-                type: taskData.type,
-                description: taskData.description,
-                text: taskData.text,
-                testcases: taskData.testcases,
-                options: taskData.options,
-                answer: taskData.answer,
-                startTime: taskData.startTime,
-                endTime: taskData.endTime,
-                lectureId: lecture.id
-            });    
+            for(const taskData of lectureData.tasks){
+                const task = await Task.create({
+                    type: taskData.type,
+                    description: taskData.description,
+                    text: taskData.text,
+                    testcases: taskData.testcases,
+                    options: taskData.options,
+                    answer: taskData.answer,
+                    startTime: taskData.startTime,
+                    endTime: taskData.endTime,
+                    lectureId: lecture.id
+                });    
         }   
     }
 
@@ -115,13 +112,8 @@ exports.getCourseById = asyncHandler(async (req, res, next) => {
 
   exports.updateCourse = asyncHandler(async (req, res, next) => {
     const id = req.params.id;
-    const { name, description, educatorId, lectures } = req.body;
-
-    if (!name || !description || !educatorId || !lectures) {
-        return next(
-            new ApiError("All fields are required", 400)
-        );
-    }
+    const { name, description, lectures } = req.body;
+    const user = req.user;
 
     try{
         const course = await Course.findByPk(id);
@@ -136,7 +128,7 @@ exports.getCourseById = asyncHandler(async (req, res, next) => {
         await course.update({
             name,
             description,
-            educatorId,       
+            educatorId:user.id,       
         })
 
         if(lectures && lectures.length > 0){

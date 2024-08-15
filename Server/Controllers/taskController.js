@@ -66,43 +66,24 @@ exports.getTaskById = asyncHandler (async (req, res, next) => {
 exports.updateTask = asyncHandler(async (req, res, next) => {
     const id = req.params.id;
 
-    try{
-        const task = await Task.findByPk(id);
-        if (!task) {
-            next (
-                new ApiError("No task was found with this id", 404)
-            );
-        }
-    } catch (err) {
+    const task = await Task.findByPk(id);
+    if (!task) {
         next (
-            new ApiError(err.message, 500)
+            new ApiError("No task was found with this id", 404)
         );
     }
     
-    const {type, description, text, testcases, options, answer, startTime, endTime, lectureId} = req.body;  
+    const updatedValues = {...req.body};
     try {
-        const lecture = await Lecture.findByPk(lectureId);
-        if (!lecture) {
-            next (
-                new ApiError("No lecture was found with this id", 404)
-            );
-        }
-        const task = await Task.update({
-            type,
-            description,
-            text,
-            testcases,
-            options,
-            answer,
-            startTime,
-            endTime,
-            lectureId,
+        task.set({
+            ...updatedValues
         },
         {
             where: {
                 id,
             }
         });
+        await task.save();
         return res.status(200).json(task);
     } catch (err) {
        next (
