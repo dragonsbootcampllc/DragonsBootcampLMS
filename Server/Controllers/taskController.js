@@ -73,24 +73,10 @@ exports.updateTask = asyncHandler(async (req, res, next) => {
         );
     }
     
-    const {type, description, text, testcases, options, answer, startTime, endTime, lectureId} = req.body;  
+    const updatedValues = {...req.body};
     try {
-        const lecture = await Lecture.findByPk(lectureId);
-        if (!lecture) {
-            next (
-                new ApiError("No lecture was found with this id", 404)
-            );
-        }
         task.set({
-            type,
-            description,
-            text,
-            testcases,
-            options,
-            answer,
-            startTime,
-            endTime,
-            lectureId,
+            ...updatedValues
         },
         {
             where: {

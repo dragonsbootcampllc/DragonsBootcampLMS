@@ -23,7 +23,7 @@ const Course = require('./coures');
 Course.hasMany(Lecture, { foreignKey: 'courseId',
   as: 'lectures',
  });
-Lecture.belongsTo(Course, { foreignKey: 'courseID',
+Lecture.belongsTo(Course, { foreignKey: 'courseId',
   as: 'course',
  });
 
