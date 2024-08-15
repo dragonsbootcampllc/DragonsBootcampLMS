@@ -122,17 +122,18 @@ exports.getContent = asyncHandler(async (req, res, next) => {
  * @access Educator
  */
 exports.updateContent = asyncHandler(async (req, res, next) => {
-    const { lectureId, contentId } = req.params;
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return next(new ApiError(errors.array().map(err => err.msg).join(', '), 400));
+    }
+
     const { title, description, type, url, file, text } = req.body;
+    const { lectureId, contentId } = req.params;
 
     await ensureLectureExists(lectureId, next);
 
-    if (!title || !description || !type || !url || !file || !text || !lectureId) {
-        return next(new ApiError("All fields are required", 400));
-    }
-
     try {
-        const content = await Content.findOne({
+        let content = await Content.findOne({
             where: {
                 id: contentId,
                 lectureId,
@@ -150,7 +151,7 @@ exports.updateContent = asyncHandler(async (req, res, next) => {
         content.file = file || content.file;
         content.text = text || content.text;
 
-        await content.save();
+        content = await content.save();
 
         return res.status(200).json(content);
     } catch (err) {
