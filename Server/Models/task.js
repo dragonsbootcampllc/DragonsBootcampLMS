@@ -44,6 +44,7 @@ Task.init({
             modelName: 'lectures',
             key: 'id',
        },
+       field: 'lecture_id',
     },
 }, {
     sequelize,

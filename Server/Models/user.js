@@ -71,9 +71,11 @@ User.init({
   },
   passwordResetToken: {
     type: DataTypes.STRING,
+    field: 'password_reset_token'
   },
   passwordResetExpires:{
     type: DataTypes.DATE,
+    field: 'password_reset_expires'
   },
 }, {
   hooks:{

@@ -26,6 +26,7 @@ StreamingContent.init({
       model: 'users',
       key: 'id',
     },
+    field: 'uploaded_by',
   },
   createdAt: {
     type: DataTypes.DATE,
@@ -38,6 +39,7 @@ StreamingContent.init({
         modelName: 'lectures',
         key: 'id',
    },
+    field: 'lecture_id',
   },
 }, {
   sequelize,

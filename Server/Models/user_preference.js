@@ -12,6 +12,7 @@ UserPreference.init({
     },
     onDelete: 'CASCADE',
     allowNull: false,
+    field: 'name',
   },
   theme: {
     type: DataTypes.STRING,

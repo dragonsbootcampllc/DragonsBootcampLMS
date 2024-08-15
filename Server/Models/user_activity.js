@@ -16,12 +16,15 @@ UserActivity.init({
       key: 'id',
     },
     onDelete: 'CASCADE',
+    field: 'userid',
   },
   activityType: {
     type: DataTypes.STRING,
+    field: 'activity_type'
   },
   activityDetails: {
     type: DataTypes.JSONB,
+    field: 'activity_details'
   },
   timestamp: {
     type: DataTypes.DATE,
