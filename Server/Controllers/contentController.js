@@ -1,5 +1,4 @@
-const { Content } = require('../Models/content');
-const { Lecture } = require('../Models/lecture');
+const { Content, Lecture } = require('../Models/index');
 const { validationResult } = require('express-validator');
 const asyncHandler = require('express-async-handler');
 const ApiError = require('../utils/ApiError');
@@ -8,13 +7,13 @@ const ApiError = require('../utils/ApiError');
  * @desc Ensure lecture exists
  * @route Middleware
  */
-exports.ensureLectureExists = asyncHandler(async (lectureId, next) => {
+const ensureLectureExists = async (lectureId) => {
     const lecture = await Lecture.findByPk(lectureId);
     if (!lecture) {
         throw new ApiError("Lecture not found", 404);
     }
     return lecture;
-});
+};
 
 /**
  * @desc Create a content
@@ -31,9 +30,9 @@ exports.createContent = asyncHandler(async (req, res, next) => {
     const lectureId = req.params.id;
     const uploadedBy = req.user.id;
 
-    await ensureLectureExists(lectureId, next);
-
     try {
+        await ensureLectureExists(lectureId);
+
         const content = await Content.create({
             title,
             description,
@@ -62,9 +61,9 @@ exports.createContent = asyncHandler(async (req, res, next) => {
 exports.getContents = asyncHandler(async (req, res, next) => {
     const lectureId = req.params.id;
 
-    await ensureLectureExists(lectureId, next);
-
     try {
+        await ensureLectureExists(lectureId);
+
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
         const offset = (page - 1) * limit;
@@ -96,9 +95,9 @@ exports.getContents = asyncHandler(async (req, res, next) => {
 exports.getContent = asyncHandler(async (req, res, next) => {
     const { lectureId, contentId } = req.params;
 
-    await ensureLectureExists(lectureId, next);
-
     try {
+        await ensureLectureExists(lectureId);
+
         const content = await Content.findOne({
             where: {
                 id: contentId,
@@ -130,9 +129,9 @@ exports.updateContent = asyncHandler(async (req, res, next) => {
     const { title, description, type, url, file, text } = req.body;
     const { lectureId, contentId } = req.params;
 
-    await ensureLectureExists(lectureId, next);
-
     try {
+        await ensureLectureExists(lectureId);
+
         let content = await Content.findOne({
             where: {
                 id: contentId,
@@ -166,10 +165,10 @@ exports.updateContent = asyncHandler(async (req, res, next) => {
  */
 exports.deleteContent = asyncHandler(async (req, res, next) => {
     const { lectureId, contentId } = req.params;
-    
-    await ensureLectureExists(lectureId, next);
 
     try {
+        await ensureLectureExists(lectureId);
+
         const content = await Content.findOne({
             where: {
                 id: contentId,

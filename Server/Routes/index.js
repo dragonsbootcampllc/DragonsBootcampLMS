@@ -10,6 +10,6 @@ router.use("/auth",authRoutes);
 router.use("/user",userRoutes);
 router.use("/tasks", taskRoutes);
 router.use("/courses", courseRoutes);
-router.use("/content", contentRoutes);
+router.use("/lectures/:lectureId/content", contentRoutes);
 
 module.exports = router;
