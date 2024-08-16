@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 
 const protect = expressAsyncHandler(async (req, res, next) => {
     let authorization = req.headers.authorization.replaceAll("\"","");
+    console.log(authorization);
     // 1) Check if token exist
     if (
       !authorization ||

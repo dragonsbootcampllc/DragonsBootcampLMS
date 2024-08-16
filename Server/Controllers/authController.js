@@ -94,6 +94,7 @@ exports.sendOTP = asyncHandler(async (req, res, next) => {
   }
 
   const new_otp = generateOTP(6);
+  console.log(new_otp);
   const otp_expiry_time = Date.now() + 5 * 60 * 1000; // 5 Mins after otp is sent
 
   const affectedCount = await User.update(

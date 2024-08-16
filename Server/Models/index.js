@@ -101,4 +101,5 @@ module.exports = {
   Notification,
   Lecture,
   Task,
+  UserCourseProgress
 };
