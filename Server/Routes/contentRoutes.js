@@ -5,7 +5,7 @@ const {
 } = require('../Controllers/contentController');
 const verifyRole = require('../utils/verifyRole');
 const { contentValidator } = require('../utils/validators/contentValidator');
-const router = require('express').Router();
+const router = require('express').Router({ mergeParams: true });
 
 router.post("/", verifyRole("educator"), contentValidator, createContent);
 router.get("/", verifyRole("educator", "student"), getContents);

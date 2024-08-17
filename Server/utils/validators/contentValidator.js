@@ -8,9 +8,6 @@ exports.contentValidator = [
     check('type')
         .notEmpty().withMessage('Content Type is required')
         .isIn(['link', 'file', 'text']).withMessage('Type must be one of "link", "file", or "text"'),
-    check('lectureId')
-        .notEmpty().withMessage('Lecture ID is required')
-        .isInt().withMessage('Lecture ID must be an integer'),
     check('uploadedBy')
         .notEmpty().withMessage('Uploaded By is required')
         .isInt().withMessage('Uploaded By must be an integer'),
