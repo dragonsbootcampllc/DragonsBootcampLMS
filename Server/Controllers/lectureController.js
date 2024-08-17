@@ -31,7 +31,7 @@ exports.uploadLecture = asyncHandler(async (req, res, next) => {
   }
 });
 
-exports.getLectuerById = asyncHandler(async (req, res, next) => {
+exports.getLectureById = asyncHandler(async (req, res, next) => {
   const id = req.params.id;
 
   const lecture = await Lecture.findByPk(id, {
@@ -74,7 +74,7 @@ exports.updateLectureById = asyncHandler(async (req, res, next) => {
   return res.status(200).json(lecture);
 });
 
-exports.deletelecture = asyncHandler(async (req, res, next) => {
+exports.deleteLecture = asyncHandler(async (req, res, next) => {
   const id = req.params.id;
 
   const lecture = await Lecture.findByPk(id);
@@ -82,5 +82,5 @@ exports.deletelecture = asyncHandler(async (req, res, next) => {
     return next(new ApiError("No lecture was found with this id", 404));
   }
   await lecture.destroy();
-  return res.status(200).json({ message: "lecture was deleted sucessfully" });
+  return res.status(200).json({ message: "lecture was deleted successfully" });
 });

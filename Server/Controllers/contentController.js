@@ -17,7 +17,7 @@ const ensureLectureExists = async (lectureId) => {
 
 /**
  * @desc Create a content
- * @route POST /api/lecture/:id/content
+ * @route POST /api/lecture/:lectureId/content
  * @access Educator
  */
 exports.createContent = asyncHandler(async (req, res, next) => {
@@ -27,19 +27,20 @@ exports.createContent = asyncHandler(async (req, res, next) => {
     }
 
     const { title, description, type, url, file, text} = req.body;
-    const lectureId = req.params.id;
+    const lectureId = req.params.lectureId;
     const uploadedBy = req.user.id;
+    console.log(req.params);
+
+    await ensureLectureExists(lectureId);
 
     try {
-        await ensureLectureExists(lectureId);
-
         const content = await Content.create({
             title,
             description,
-            type,
-            url: url || null,
-            file: file || null,
-            text: text || null,
+            contentType: type,
+            contentUrl: url || null,
+            contentFile: file || null,
+            contentText: text || null,
             uploadedBy,
             lectureId,
         });
@@ -52,18 +53,18 @@ exports.createContent = asyncHandler(async (req, res, next) => {
 
 /**
  * @desc Get all contents
- * @route GET /api/lecture/:id/content
+ * @route GET /api/lecture/:lectureId/content
  * @param page - number of page
  * @param limit - number of items per page
  * @example /api/lecture/1/content?page=1&limit=10
  * @access Educator, Student
  */
 exports.getContents = asyncHandler(async (req, res, next) => {
-    const lectureId = req.params.id;
+    const lectureId = req.params.lectureId;
+
+    await ensureLectureExists(lectureId);
 
     try {
-        await ensureLectureExists(lectureId);
-
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
         const offset = (page - 1) * limit;
@@ -89,15 +90,16 @@ exports.getContents = asyncHandler(async (req, res, next) => {
 
 /**
  * @desc Get a content
- * @route GET /api/lecture/:id/content/:id
+ * @route GET /api/lecture/:lectureId/content/:contentId
  * @access Educator, Student
  */
 exports.getContent = asyncHandler(async (req, res, next) => {
-    const { lectureId, contentId } = req.params;
+    const { lectureId } = req.params.lectureId;
+    const { contentId } = req.params.contentId;
+
+    await ensureLectureExists(lectureId);
 
     try {
-        await ensureLectureExists(lectureId);
-
         const content = await Content.findOne({
             where: {
                 id: contentId,
@@ -117,16 +119,17 @@ exports.getContent = asyncHandler(async (req, res, next) => {
 
 /**
  * @desc Update a content
- * @route PATCH /api/lecture/:id/content/:id
+ * @route PATCH /api/lecture/:lectureId/content/:contentId
  * @access Educator
  */
 exports.updateContent = asyncHandler(async (req, res, next) => {
     const { title, description, type, url, file, text } = req.body;
-    const { lectureId, contentId } = req.params;
+    const { lectureId } = req.params.lectureId;
+    const { contentId } = req.params.contentId;
+
+    await ensureLectureExists(lectureId);
 
     try {
-        await ensureLectureExists(lectureId);
-
         let content = await Content.findOne({
             where: {
                 id: contentId,
@@ -141,10 +144,10 @@ exports.updateContent = asyncHandler(async (req, res, next) => {
         const updatedContent = {
             title: title || content.title,
             description: description || content.description,
-            type: type || content.type,
-            url: url || content.url,
-            file: file || content.file,
-            text: text || content.text,
+            contentType: type || content.contentType,
+            contentUrl: url || content.contentUrl,
+            contentFile: file || content.contentFile,
+            contentText: text || content.contentText,
         };
 
         content = await content.update(updatedContent);
@@ -157,15 +160,16 @@ exports.updateContent = asyncHandler(async (req, res, next) => {
 
 /**
  * @desc Delete a content
- * @route DELETE /api/lecture/:id/content/:id
+ * @route DELETE /api/lecture/:lectureId/content/:contentId
  * @access Educator
  */
 exports.deleteContent = asyncHandler(async (req, res, next) => {
-    const { lectureId, contentId } = req.params;
+    const { lectureId } = req.params.lectureId;
+    const { contentId } = req.params.contentId;
+
+    await ensureLectureExists(lectureId);
 
     try {
-        await ensureLectureExists(lectureId);
-
         const content = await Content.findOne({
             where: {
                 id: contentId,
