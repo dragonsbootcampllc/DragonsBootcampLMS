@@ -2,6 +2,7 @@ const Sequelize = require("sequelize");
 const config = require("../config/config");
 const sequelize = require("../config/database");
 
+const UserCourseProgress = require("./userCourseProgress")
 const User = require("./user");
 const UserProfile = require("./user_profile");
 const UserActivity = require("./user_activity");
@@ -19,11 +20,15 @@ const Task = require('./task');
 const Course = require('./coures');
 
 
+
 // Define associations
+User.hasOne(UserCourseProgress,{foreignKey:"userId"})
+UserCourseProgress.belongsTo(User,{foreignKey:"userId"})
+
 Course.hasMany(Lecture, { foreignKey: 'courseId',
   as: 'lectures',
  });
-Lecture.belongsTo(Course, { foreignKey: 'courseID',
+Lecture.belongsTo(Course, { foreignKey: 'courseId',
   as: 'course',
  });
 
@@ -96,4 +101,5 @@ module.exports = {
   Notification,
   Lecture,
   Task,
+  UserCourseProgress
 };

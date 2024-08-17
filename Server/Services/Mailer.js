@@ -8,6 +8,9 @@ var transporter = nodemailer.createTransport({
   },
 });
 function sendEmail(to,subject,message){
+  //if you want to use the email for testing you can comment the return 
+  // better option is to log the message in the log for ONLY TESTING!
+  return;
     var mailOptions = {
         from: "ahmednagh2005@gmail.com",
         to: to,
