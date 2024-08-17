@@ -117,15 +117,10 @@ exports.getContent = asyncHandler(async (req, res, next) => {
 
 /**
  * @desc Update a content
- * @route PUT /api/lecture/:id/content/:id
+ * @route PATCH /api/lecture/:id/content/:id
  * @access Educator
  */
 exports.updateContent = asyncHandler(async (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return next(new ApiError(errors.array().map(err => err.msg).join(', '), 400));
-    }
-
     const { title, description, type, url, file, text } = req.body;
     const { lectureId, contentId } = req.params;
 
@@ -143,14 +138,16 @@ exports.updateContent = asyncHandler(async (req, res, next) => {
             return next(new ApiError("Content not found", 404));
         }
 
-        content.title = title || content.title;
-        content.description = description || content.description;
-        content.type = type || content.type;
-        content.url = url || content.url;
-        content.file = file || content.file;
-        content.text = text || content.text;
+        const updatedContent = {
+            title: title || content.title,
+            description: description || content.description,
+            type: type || content.type,
+            url: url || content.url,
+            file: file || content.file,
+            text: text || content.text,
+        };
 
-        content = await content.save();
+        content = await content.update(updatedContent);
 
         return res.status(200).json(content);
     } catch (err) {
