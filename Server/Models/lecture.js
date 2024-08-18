@@ -12,10 +12,12 @@ Lecture.init({
     startTime: {
         type: DataTypes.DATE,
         allowNull: false,
+        field: 'start_time',
     },
     endTime: {
         type: DataTypes.DATE,
         allowNull: false,
+        field: 'end_time',
     },
     type: {
         type: DataTypes.ENUM('text', 'recorded', 'online'),
@@ -37,6 +39,7 @@ Lecture.init({
             model: 'courses',
             key: 'id',
         },
+        field: 'course_id',
     },
 }, {
     sequelize,

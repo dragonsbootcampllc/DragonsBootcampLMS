@@ -54,6 +54,7 @@ User.init({
   passwordChangedAt:{
     type: DataTypes.DATE,
     defaultValue: Date.now(),
+    field: 'password_changed_at'
   },
   role: {
     type: DataTypes.STRING,
@@ -71,9 +72,11 @@ User.init({
   },
   passwordResetToken: {
     type: DataTypes.STRING,
+    field: 'password_reset_token'
   },
   passwordResetExpires:{
     type: DataTypes.DATE,
+    field: 'password_reset_expires'
   },
 }, {
   hooks:{

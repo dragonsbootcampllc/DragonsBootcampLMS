@@ -32,10 +32,12 @@ Task.init({
     startTime: {
         type: DataTypes.DATE,
         allowNull: false,
+        field: 'start_time',
     },
     endTime: {
         type: DataTypes.DATE,
         allowNull: false,
+        field: 'end_time',
     },
     lectureId: {
         type: DataTypes.INTEGER,
@@ -44,6 +46,7 @@ Task.init({
             modelName: 'lectures',
             key: 'id',
        },
+       field: 'lecture_id',
     },
 }, {
     sequelize,

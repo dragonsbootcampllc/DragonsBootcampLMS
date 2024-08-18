@@ -17,6 +17,7 @@ UserCourseProgress.init({
             model: 'users',
             key: 'id',
         },
+        field: 'user_id',
     },
     courseId: {
         type: DataTypes.INTEGER,
@@ -25,19 +26,18 @@ UserCourseProgress.init({
             model: 'courses',
             key: 'id',
         },
-    },
-    startedAt: {
-        type: DataTypes.DATE,
-        allowNull: true,
+        fields: 'course_id',
     },
     completedAt: {
         type: DataTypes.DATE,
         allowNull: true,
+        field: 'completed_at',
     },
     isCompleted: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
-        },
+        field: 'is_completed',
+    },
 }, {
     sequelize,
     modelName: 'UserCourseProgress',

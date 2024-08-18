@@ -19,15 +19,19 @@ Content.init({
   contentType: {
     type: DataTypes.ENUM('link', 'file', 'text'),
     allowNull: false,
+    field: 'content_type',
   },
   contentUrl: {
     type: DataTypes.STRING,
+    field: 'content_url',
   },
   contentFile: {
     type: DataTypes.STRING,
+    field: 'content_file',
   },
   contentText: {
     type: DataTypes.TEXT,
+    field: 'content_text',
   },
   uploadedBy: {
     type: DataTypes.INTEGER,
@@ -35,10 +39,7 @@ Content.init({
       model: 'users',
       key: 'id',
     },
-  },
-  createdAt: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW,
+    field: 'uploaded_by',
   },
   lectureId: {
     type: DataTypes.INTEGER,
@@ -47,6 +48,7 @@ Content.init({
       model: "lectures",
       key: "id",
     },
+    field: "lecture_id",
   },
 }, {
   sequelize,
