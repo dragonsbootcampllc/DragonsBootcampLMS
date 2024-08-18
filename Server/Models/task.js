@@ -1,5 +1,6 @@
 const {Model, DataTypes, json} = require('sequelize');
 const sequelize = require('../config/database');
+const { taskTypes } = require('../config/options');
 
 class Task extends Model {};
 
@@ -10,7 +11,7 @@ Task.init({
         autoIncrement: true,
     },
     type: {
-        type: DataTypes.ENUM('text', 'code', 'options'),
+        type: DataTypes.ENUM(...taskTypes),
         allowNull: false,
     },
     description: {

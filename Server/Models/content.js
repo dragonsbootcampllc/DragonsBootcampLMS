@@ -1,5 +1,6 @@
 const { Model, DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
+const { contentTypes } = require('../config/options');
 
 class Content extends Model {}
 
@@ -17,7 +18,7 @@ Content.init({
     type: DataTypes.TEXT,
   },
   contentType: {
-    type: DataTypes.ENUM('link', 'file', 'text'),
+    type: DataTypes.ENUM(...contentTypes),
     allowNull: false,
     field: 'content_type',
   },

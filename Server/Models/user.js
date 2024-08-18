@@ -2,6 +2,7 @@ const { Model, DataTypes } = require('sequelize');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const sequelize = require('../config/database');
+const { roles } = require('../config/options');
 
 class User extends Model {
   correctOTP(otp){
@@ -57,7 +58,7 @@ User.init({
     field: 'password_changed_at'
   },
   role: {
-    type: DataTypes.STRING,
+    type: DataTypes.ENUM(...roles),
     allowNull: false,
   },
   verified:{

@@ -1,5 +1,6 @@
 const {Model, DataTypes} = require('sequelize');
 const sequelize = require('../config/database');
+const { lectureTypes } = require('../config/options');
 
 class Lecture extends Model {};
 
@@ -20,13 +21,16 @@ Lecture.init({
         field: 'end_time',
     },
     type: {
-        type: DataTypes.ENUM('text', 'recorded', 'online'),
+        type: DataTypes.ENUM(...lectureTypes),
         allowNull: false,
     },
     text: {
         type: DataTypes.TEXT,
     },
     recordedLink: {
+        type: DataTypes.STRING,
+    },
+    online_link:{
         type: DataTypes.STRING,
     },
     order: {
