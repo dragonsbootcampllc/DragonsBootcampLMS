@@ -2,7 +2,8 @@ const jwt = require('jsonwebtoken');
 
 const verifyRole = (roles) => {
   return (req, res, next) => {
-    const token = req.headers['authorization'];
+    let authorization = req.headers.authorization.replaceAll("\"","");
+    const token = authorization.split(" ")[1];
 
     if (!token) {
       return res.status(403).json({ message: 'No token provided.' });

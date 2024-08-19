@@ -1,5 +1,6 @@
 const {Model, DataTypes, json} = require('sequelize');
 const sequelize = require('../config/database');
+const { taskTypes } = require('../config/options');
 
 class Task extends Model {};
 
@@ -10,11 +11,12 @@ Task.init({
         autoIncrement: true,
     },
     type: {
-        type: DataTypes.ENUM('text', 'code', 'option'),
+        type: DataTypes.ENUM(...taskTypes),
         allowNull: false,
     },
     description: {
         type: DataTypes.TEXT,
+        allowNull: false,
     },
     text: {
         type: DataTypes.TEXT,
@@ -27,15 +29,16 @@ Task.init({
     },
     answer: {
         type: DataTypes.TEXT,
-        allowNull: false,
     },
     startTime: {
         type: DataTypes.DATE,
         allowNull: false,
+        field: 'start_time',
     },
     endTime: {
         type: DataTypes.DATE,
         allowNull: false,
+        field: 'end_time',
     },
     lectureId: {
         type: DataTypes.INTEGER,
@@ -44,11 +47,13 @@ Task.init({
             modelName: 'lectures',
             key: 'id',
        },
+       field: 'lecture_id',
     },
 }, {
     sequelize,
     modelName: 'Task',
-    tableName: 'tasks'
+    tableName: 'tasks',
+    timestamps: true,
 });
 
 module.exports = Task;

@@ -29,10 +29,7 @@ BookResource.init({
       model: 'users',
       key: 'id',
     },
-  },
-  createdAt: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW,
+    fields: 'uploaded_by',
   },
 }, {
   sequelize,

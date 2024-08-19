@@ -15,6 +15,7 @@ ChatMessage.init({
       model: 'users',
       key: 'id',
     },
+    field: 'sender_id',
   },
   receiverId: {
     type: DataTypes.INTEGER,
@@ -22,14 +23,11 @@ ChatMessage.init({
       model: 'users',
       key: 'id',
     },
+    fields: 'receiver_id',
   },
   message: {
     type: DataTypes.TEXT,
     allowNull: false,
-  },
-  sentAt: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW,
   },
 }, {
   sequelize,

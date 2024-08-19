@@ -2,6 +2,7 @@ const { Model, DataTypes } = require('sequelize');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const sequelize = require('../config/database');
+const { roles } = require('../config/options');
 
 class User extends Model {
   correctOTP(otp){
@@ -54,9 +55,10 @@ User.init({
   passwordChangedAt:{
     type: DataTypes.DATE,
     defaultValue: Date.now(),
+    field: 'password_changed_at'
   },
   role: {
-    type: DataTypes.STRING,
+    type: DataTypes.ENUM(...roles),
     allowNull: false,
   },
   verified:{
@@ -71,9 +73,11 @@ User.init({
   },
   passwordResetToken: {
     type: DataTypes.STRING,
+    field: 'password_reset_token'
   },
   passwordResetExpires:{
     type: DataTypes.DATE,
+    field: 'password_reset_expires'
   },
 }, {
   hooks:{
