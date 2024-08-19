@@ -16,7 +16,11 @@ DiscussionPost.init({
       key: 'id',
     },
     onDelete: 'CASCADE',
+<<<<<<< HEAD
     field: 'thread_id',
+=======
+    fields: 'thread_id',
+>>>>>>> origin/Sprent-2
   },
   userId: {
     type: DataTypes.INTEGER,
@@ -24,7 +28,11 @@ DiscussionPost.init({
       model: 'users',
       key: 'id',
     },
+<<<<<<< HEAD
     field: 'user_id',
+=======
+    fields: 'user_id',
+>>>>>>> origin/Sprent-2
   },
   post: {
     type: DataTypes.TEXT,

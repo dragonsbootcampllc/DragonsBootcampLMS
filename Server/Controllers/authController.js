@@ -94,6 +94,7 @@ exports.sendOTP = asyncHandler(async (req, res, next) => {
   }
 
   const new_otp = generateOTP(6);
+  console.log(new_otp);
   const otp_expiry_time = Date.now() + 5 * 60 * 1000; // 5 Mins after otp is sent
 
   const affectedCount = await User.update(
@@ -186,11 +187,11 @@ exports.login = asyncHandler(async (req, res, next) => {
   });
 
   // ***** SEE: uncomment after the signup endpoint finished *****
-  const isPasswordCorrect = await bcrypt.compare(password,user.password_hash);
 
   if(!user){
     return next(new ApiError("User not found", 404));
   }
+  const isPasswordCorrect = await bcrypt.compare(password,user.password_hash);
   if (!isPasswordCorrect) {
     return next(new ApiError("Password are wrong!", 404));
   }

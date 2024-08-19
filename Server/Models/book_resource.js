@@ -29,7 +29,11 @@ BookResource.init({
       model: 'users',
       key: 'id',
     },
+<<<<<<< HEAD
     field:"uploaded_by"
+=======
+    fields: 'uploaded_by',
+>>>>>>> origin/Sprent-2
   },
 }, {
   sequelize,

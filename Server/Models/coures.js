@@ -37,4 +37,3 @@ Course.init({
 });
 
 module.exports = Course;
-

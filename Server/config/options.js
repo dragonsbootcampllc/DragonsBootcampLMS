@@ -1,0 +1,22 @@
+module.exports = {
+    contentTypes: ["link", "file", "text"],
+    lectureTypes: ["text", "recorded", "online"],
+    taskTypes: ["text", "code", "options"],
+    roles: ["student", "educator", "admin"],
+    activitiesTypes: [
+        "Login",
+        "Logout",
+        "Course Enrolled",
+        "Lecture Attended",
+        "Task Submitted",
+        "Task Reviewed",
+        "Course Completed",
+        "Content Accessed",
+        "Discussion Posted",
+        "Profile Updated",
+        "Preference Changed",
+        "Notification Read",
+        "Feedback Submitted",
+        "Message Sent",
+    ],
+};

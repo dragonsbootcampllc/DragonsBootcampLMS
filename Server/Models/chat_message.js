@@ -23,7 +23,11 @@ ChatMessage.init({
       model: 'users',
       key: 'id',
     },
+<<<<<<< HEAD
     field: 'receiver_id',
+=======
+    fields: 'receiver_id',
+>>>>>>> origin/Sprent-2
   },
   message: {
     type: DataTypes.TEXT,

@@ -12,7 +12,11 @@ UserProfile.init({
       key: 'id',
     },
     onDelete: 'CASCADE',
+<<<<<<< HEAD
     field: 'userid',
+=======
+    field: 'user_id',
+>>>>>>> origin/Sprent-2
   },
   firstName: {
     type: DataTypes.STRING,

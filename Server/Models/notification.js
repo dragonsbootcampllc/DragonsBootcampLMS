@@ -23,7 +23,11 @@ Notification.init({
   },
   notificationContent: {
     type: DataTypes.JSONB,
+<<<<<<< HEAD
     field: 'notification_content', 
+=======
+    field: 'notification_content',
+>>>>>>> origin/Sprent-2
   },
   read: {
     type: DataTypes.BOOLEAN,
