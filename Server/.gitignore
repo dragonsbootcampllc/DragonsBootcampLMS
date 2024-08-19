@@ -2,5 +2,3 @@
 .env
 /seeders
 
-# Firebase
-/serviceAccountKey.json

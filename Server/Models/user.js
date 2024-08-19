@@ -75,9 +75,6 @@ User.init({
   passwordResetExpires:{
     type: DataTypes.DATE,
   },
-  fcmToken:{
-    type: DataTypes.STRING
-  },
 }, {
   hooks:{
     beforeSave: async (user, options) => {
