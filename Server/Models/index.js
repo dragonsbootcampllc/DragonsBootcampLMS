@@ -17,6 +17,7 @@ const Notification = require("./notification");
 const Lecture = require('./lecture');
 const Task = require('./task');
 const Course = require('./coures');
+const UserTaskProgress = require('./userTaskPrpgress');
 
 
 // Define associations
@@ -70,6 +71,13 @@ ChatMessage.belongsTo(User, { foreignKey: "receiverId", as: "Receiver" });
 User.hasMany(Notification, { foreignKey: "userId" });
 Notification.belongsTo(User, { foreignKey: "userId" });
 
+
+User.hasMany(UserTaskProgress, { foreignKey: "userId" });
+UserTaskProgress.belongsTo(User, { foreignKey: "userId" });
+
+Task.hasMany(UserTaskProgress, { foreignKey: "taskId" });
+UserTaskProgress.belongsTo(Task, { foreignKey: "taskId" });
+
 module.exports = {
   sequelize,
   Sequelize,
@@ -88,4 +96,5 @@ module.exports = {
   Notification,
   Lecture,
   Task,
+  UserTaskProgress,
 };
