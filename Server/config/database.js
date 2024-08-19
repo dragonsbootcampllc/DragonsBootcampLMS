@@ -54,7 +54,7 @@ validateDatabase().then(() => {
 
     sequelize
     .sync({alter: true,
-        // force: true
+        force: true
     })
     .then(() => {
         console.log("Database synchronized");
