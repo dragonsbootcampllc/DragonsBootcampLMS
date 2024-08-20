@@ -25,11 +25,7 @@ AIInsight.init({
   insightDetails: {
     type: DataTypes.JSONB,
     field: 'insight_details',
-<<<<<<< HEAD
   },
-=======
-  }
->>>>>>> origin/Sprent-2
 }, {
   sequelize,
   modelName: 'AIInsight',

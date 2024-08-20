@@ -1,5 +1,5 @@
 const asyncHandler = require('express-async-handler');
-const { UserActivity } = require('../Models/index');
+const { UserActivity, User } = require('../Models/index');
 const ApiError = require('../utils/ApiError');
 
 const getActivities = asyncHandler(async (req, res) => {
@@ -10,6 +10,10 @@ const getActivities = asyncHandler(async (req, res) => {
         {
             limit,
             offset,
+            include: {
+                model: User,
+                attributes: ['username', 'email','role'],
+            }
         }
     );
 
@@ -19,7 +23,12 @@ const getActivities = asyncHandler(async (req, res) => {
 const getActivity = asyncHandler(async (req, res) => {
     const { id } = req.params;
 
-    const activity = await UserActivity.findByPk(id);
+    const activity = await UserActivity.findByPk(id,{
+        include: {
+            model: User,
+            attributes: ['username', 'email','role'],
+        }
+    });
 
     if (!activity) {
         throw new ApiError('There is no activity with this id.', 404);

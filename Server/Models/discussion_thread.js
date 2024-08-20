@@ -19,11 +19,7 @@ DiscussionThread.init({
       model: 'users',
       key: 'id',
     },
-<<<<<<< HEAD
     field: 'created_by',
-=======
-    field:'created_by',
->>>>>>> origin/Sprent-2
   },
 }, {
   sequelize,

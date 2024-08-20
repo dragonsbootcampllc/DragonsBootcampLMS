@@ -1,5 +1,5 @@
 const { getAllUsers } = require("../Controllers/userController");
-const { protect } = require('../Controllers/authController');
+const protect = require('../middlewares/protect');
 const { userPreferncesValidator } = require('../utils/validators/prefernecesValidatior');
 const { getpreferneces, updatePreferences } = require('../Controllers/userPreferenecsController');
 const { getUserActivities, getUserActivity } = require('../Controllers/activitiesController');
@@ -10,7 +10,7 @@ router.get("/", getAllUsers);
 router.get("/preferences", protect, getpreferneces);
 router.put("/preferences", protect, userPreferncesValidator, updatePreferences);
 
-router.route('/activities').get(protect, getUserActivities);
-router.route('/activities/:id').get(protect, getUserActivity);
+router.get('/activities',protect, getUserActivities);
+router.get('/activities/:id',protect, getUserActivity);
 
 module.exports = router;

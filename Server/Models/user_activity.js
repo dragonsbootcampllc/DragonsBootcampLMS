@@ -17,7 +17,6 @@ UserActivity.init({
       key: 'id',
     },
     onDelete: 'CASCADE',
-<<<<<<< HEAD
     field: 'userid',
   },
   activityType: {
@@ -27,17 +26,6 @@ UserActivity.init({
   activityDetails: {
     type: DataTypes.JSONB,
     field: 'activity_details'
-=======
-    field: 'user_id',
-  },
-  activityType: {
-    type: DataTypes.ENUM(...activitiesTypes),
-    field: 'activity_type',
-  },
-  activityDetails: {
-    type: DataTypes.JSONB,
-    field: 'activity_details',
->>>>>>> origin/Sprent-2
   },
   timestamp: {
     type: DataTypes.DATE,

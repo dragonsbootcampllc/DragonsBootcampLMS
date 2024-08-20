@@ -49,11 +49,7 @@ Content.init({
       model: "lectures",
       key: "id",
     },
-<<<<<<< HEAD
     field:"lecture_id"
-=======
-    field: "lecture_id",
->>>>>>> origin/Sprent-2
   },
 }, {
   sequelize,
