@@ -35,5 +35,8 @@ exports.calculateAverageTaskProgress = asyncHandler(async (req, res, next) => {
 
     const average_progress = (tasks_completed_count / tasks_count) * 100;
 
-    res.status(200).json({average_progress})
+    res.status(200).json({average_progress,
+        tasks_count,
+        tasks_completed_count,
+    })
 })
