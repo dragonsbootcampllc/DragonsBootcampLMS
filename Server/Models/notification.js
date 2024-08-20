@@ -15,6 +15,7 @@ Notification.init({
       model: 'users',
       key: 'id',
     },
+    field: 'user_id',
   },
   notificationType: {
     type: DataTypes.STRING,
@@ -22,7 +23,7 @@ Notification.init({
   },
   notificationContent: {
     type: DataTypes.JSONB,
-    field: 'notification_content',
+    field: 'notification_content', 
   },
   read: {
     type: DataTypes.BOOLEAN,

@@ -187,6 +187,7 @@ exports.login = asyncHandler(async (req, res, next) => {
   });
 
   // ***** SEE: uncomment after the signup endpoint finished *****
+
   if(!user){
     return next(new ApiError("User not found", 404));
   }
@@ -208,13 +209,15 @@ exports.login = asyncHandler(async (req, res, next) => {
       userId: user.id,
     },
   })
+
   try {
-    if (user_preferences) {
-      return res.status(200).json({status: "success", token});
-    }
-    const preferences = await UserPreference.create({
-      userId: user.id,
+    if (!user_preferences) {
+      const preferences = await UserPreference.create({
+        userId: user.id,
       });
+    }
+    
+    return res.status(200).json({status: "success", token});
   } catch (err) {
     return next(new ApiError(err.message, 500));
   }

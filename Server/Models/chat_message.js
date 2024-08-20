@@ -23,7 +23,7 @@ ChatMessage.init({
       model: 'users',
       key: 'id',
     },
-    fields: 'receiver_id',
+    field: 'receiver_id',
   },
   message: {
     type: DataTypes.TEXT,

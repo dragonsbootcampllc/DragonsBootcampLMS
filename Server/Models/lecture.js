@@ -29,6 +29,7 @@ Lecture.init({
     },
     recordedLink: {
         type: DataTypes.STRING,
+        field: 'recorded_link',
     },
     online_link:{
         type: DataTypes.STRING,

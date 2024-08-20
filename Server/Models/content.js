@@ -49,7 +49,7 @@ Content.init({
       model: "lectures",
       key: "id",
     },
-    field: "lecture_id",
+    field:"lecture_id"
   },
 }, {
   sequelize,

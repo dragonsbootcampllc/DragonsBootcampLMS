@@ -16,7 +16,7 @@ DiscussionPost.init({
       key: 'id',
     },
     onDelete: 'CASCADE',
-    fields: 'thread_id',
+    field: 'thread_id',
   },
   userId: {
     type: DataTypes.INTEGER,
@@ -24,7 +24,7 @@ DiscussionPost.init({
       model: 'users',
       key: 'id',
     },
-    fields: 'user_id',
+    field: 'user_id',
   },
   post: {
     type: DataTypes.TEXT,
