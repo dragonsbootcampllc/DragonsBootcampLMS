@@ -35,7 +35,7 @@ StreamingContent.init({
         modelName: 'lectures',
         key: 'id',
    },
-   fields: 'lecture_id',
+    field: 'lecture_id',
   },
 }, {
   sequelize,

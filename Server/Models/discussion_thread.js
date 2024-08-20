@@ -19,7 +19,7 @@ DiscussionThread.init({
       model: 'users',
       key: 'id',
     },
-    field:'created_by',
+    field: 'created_by',
   },
 }, {
   sequelize,

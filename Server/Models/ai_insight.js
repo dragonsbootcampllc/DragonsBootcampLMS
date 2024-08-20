@@ -25,7 +25,7 @@ AIInsight.init({
   insightDetails: {
     type: DataTypes.JSONB,
     field: 'insight_details',
-  }
+  },
 }, {
   sequelize,
   modelName: 'AIInsight',

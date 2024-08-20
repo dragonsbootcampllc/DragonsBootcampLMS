@@ -29,7 +29,7 @@ BookResource.init({
       model: 'users',
       key: 'id',
     },
-    fields: 'uploaded_by',
+    field:"uploaded_by"
   },
 }, {
   sequelize,

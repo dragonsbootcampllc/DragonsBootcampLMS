@@ -12,7 +12,7 @@ UserProfile.init({
       key: 'id',
     },
     onDelete: 'CASCADE',
-    field: 'user_id',
+    field: 'userid',
   },
   firstName: {
     type: DataTypes.STRING,
