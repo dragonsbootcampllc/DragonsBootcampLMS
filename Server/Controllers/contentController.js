@@ -13,18 +13,6 @@ const ensureLectureExists = async (lectureId) => {
 };
 
 exports.createContent = asyncHandler(async (req, res, next) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return next(
-      new ApiError(
-        errors
-          .array()
-          .map((err) => err.msg)
-          .join(", "),
-        400
-      )
-    );
-  }
   const {
     title,
     description,
@@ -42,7 +30,6 @@ exports.createContent = asyncHandler(async (req, res, next) => {
   await ensureLectureExists(lectureId);
 
   try {
-    let contentUrl = null;
     if (req.file) {
       const resourceType = req.file.mimetype.startsWith("video")
         ? "video"

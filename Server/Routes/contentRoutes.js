@@ -3,7 +3,7 @@ const {createContent, updateContent, deleteContent, getAllContents, getContentBy
 const verifyRole = require('../utils/verifyRole');
 const uploadMiddleware = require('../middlewares/uploadMiddleware');
 const {contentValidator} = require('../utils/validators/contentValidator');
-const router = require('express').Router();
+const router = require('express').Router({mergeParams: true});
 
 router.post("/", verifyRole("educator"), uploadMiddleware.single('contentFile'),contentValidator, createContent);
 router.get("/", getAllContents);

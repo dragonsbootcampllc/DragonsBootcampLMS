@@ -15,7 +15,6 @@ router.use("/tasks", taskRoutes);
 router.use("/activities", activitiesRoutes);
 router.use("/lectures", lectureRoutes)
 router.use("/courses", courseRoutes);
-router.use("/content", contentRoutes);
 router.use("/tags", tagRoutes);
 router.use("/categories", categoryRoutes);
 
