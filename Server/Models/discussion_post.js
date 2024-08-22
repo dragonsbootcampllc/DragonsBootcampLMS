@@ -16,6 +16,7 @@ DiscussionPost.init({
       key: 'id',
     },
     onDelete: 'CASCADE',
+    field: 'thread_id',
   },
   userId: {
     type: DataTypes.INTEGER,
@@ -23,14 +24,11 @@ DiscussionPost.init({
       model: 'users',
       key: 'id',
     },
+    field: 'user_id',
   },
   post: {
     type: DataTypes.TEXT,
     allowNull: false,
-  },
-  postedAt: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW,
   },
 }, {
   sequelize,

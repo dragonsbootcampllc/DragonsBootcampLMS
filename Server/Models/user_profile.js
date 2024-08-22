@@ -12,18 +12,22 @@ UserProfile.init({
       key: 'id',
     },
     onDelete: 'CASCADE',
+    field: 'userid',
   },
   firstName: {
     type: DataTypes.STRING,
+    field: 'first_name',
   },
   lastName: {
     type: DataTypes.STRING,
+    field: 'last_name',
   },
   bio: {
     type: DataTypes.TEXT,
   },
   profilePicture: {
     type: DataTypes.BLOB,
+    field: 'profile_picture',
   },
 }, {
   sequelize,

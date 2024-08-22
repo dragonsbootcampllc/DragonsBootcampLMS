@@ -1,11 +1,21 @@
-const {check} = require('express-validator');
+const { check, body } = require('express-validator');
 const validatorMiddleware = require('../../middlewares/validatorMiddleware');
 
 exports.contentValidator = [
-    check('title').notEmpty().withMessage('Title is required'),
-    check('description').notEmpty().withMessage('Description is required'),
-    check('contentType').notEmpty().withMessage('Content type is required'),
-    check('uploadedBy').notEmpty().withMessage('Uploaded by is required'),
-    check('lectureId').isInt().withMessage('Lecture ID must be an integer'),
+    check('title')
+        .notEmpty().withMessage('Title is required'),
+    check('description')
+        .notEmpty().withMessage('Description is required'),
+    check('type')
+        .notEmpty().withMessage('Content Type is required')
+        .isIn(['link', 'file', 'text']).withMessage('Type must be one of "link", "file", or "text"'),
+
+    body().custom((value, { req }) => {
+        const { url, file, text } = req.body;
+        if ([url, file, text].filter(Boolean).length !== 1) {
+            throw new Error('Only one of "url", "file", or "text" must be provided');
+        }
+        return true;
+    }),
     validatorMiddleware
-]
+];

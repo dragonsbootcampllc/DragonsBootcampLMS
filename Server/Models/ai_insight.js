@@ -16,16 +16,15 @@ AIInsight.init({
       key: 'id',
     },
     onDelete: 'CASCADE',
+    field: 'user_id',
   },
   insightType: {
     type: DataTypes.STRING,
+    field: 'insight_type',
   },
   insightDetails: {
     type: DataTypes.JSONB,
-  },
-  generatedAt: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW,
+    field: 'insight_details',
   },
 }, {
   sequelize,
