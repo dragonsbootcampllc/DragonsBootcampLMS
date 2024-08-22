@@ -18,12 +18,30 @@ const Notification = require("./notification");
 const Lecture = require('./lecture');
 const Task = require('./task');
 const Course = require('./coures');
+const UserLectureProgress = require("./UserLectureProgress");
+const UserTaskProgress = require("./UserTaskProgress");
+
 
 
 
 // Define associations
 User.hasOne(UserCourseProgress,{foreignKey:"userId"})
 UserCourseProgress.belongsTo(User,{foreignKey:"userId"})
+
+User.hasMany(Course, { foreignKey: 'educatorId' });
+Course.belongsTo(User, { foreignKey: 'educatorId', as: 'educator' });
+
+User.hasMany(UserLectureProgress, { foreignKey: "userId" });
+UserLectureProgress.belongsTo(User, { foreignKey: "userId" });
+
+Lecture.hasMany(UserLectureProgress, { foreignKey: "lectureId" });
+UserLectureProgress.belongsTo(Lecture, { foreignKey: "lectureId" });
+
+User.hasMany(UserTaskProgress, { foreignKey: "userId" });
+UserTaskProgress.belongsTo(User, { foreignKey: "userId" });
+
+Task.hasMany(UserTaskProgress, { foreignKey: "taskId" });
+UserTaskProgress.belongsTo(Task, { foreignKey: "taskId" });
 
 Course.hasMany(Lecture, { foreignKey: 'courseId',
   as: 'lectures',
@@ -101,5 +119,7 @@ module.exports = {
   Notification,
   Lecture,
   Task,
-  UserCourseProgress
+  UserCourseProgress,
+  UserLectureProgress,
+  UserTaskProgress
 };

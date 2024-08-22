@@ -1,6 +1,7 @@
-const { Course, Lecture, Task } = require('../Models/index');
+const { Course, Lecture, Task, UserLectureProgress, UserTaskProgress, UserCourseProgress, User } = require('../Models/index');
 const asyncHandler = require('express-async-handler');
 const ApiError = require('../utils/ApiError');
+const { Op } = require('sequelize');
 
  exports.createCourse = asyncHandler(async (req, res, next) => {
     const { name, description, lectures } = req.body;
@@ -219,3 +220,82 @@ exports.deleteCourseById = asyncHandler(async (req, res, next) => {
 });
 
 
+exports.getCourseDetails = asyncHandler(async (req, res, next) => {
+    const { courseId } = req.params;
+    console.log('courseId', courseId);
+    const userId = req.user ? req.user.id : null;
+    console.log('userId', userId); 
+    try {
+        // Fetch course details
+        const course = await Course.findByPk(courseId, {
+            include: [
+                {
+                    model: Lecture,
+                    as: 'lectures',
+                    include: [
+                        {
+                            model: Task,
+                            as: 'tasks'
+                        }
+                    ]
+                }
+            ]
+        });
+
+        if (!course) {
+            return next(new ApiError("Course not found", 404));
+        }
+
+        const totalLectures = course.lectures.length;
+        const totalTasks = course.lectures.reduce((acc, lecture) => acc + lecture.tasks.length, 0);
+
+        let LecturePercentage = 0;
+        let tasksPercentage = 0;
+
+        if (userId) {
+            const attendedLectures = await UserLectureProgress.count({
+                where: { userId, courseId, attended: true }
+            });
+
+            const completedTasks = await UserTaskProgress.count({
+                where: {
+                    userId,
+                    taskId: {
+                        [Op.in]: course.lectures.flatMap(lecture => lecture.tasks.map(task => task.id))
+                    },
+                    finished: true
+                }
+            });
+
+            LecturePercentage = totalLectures ? Math.floor(attendedLectures / totalLectures) * 100 : 0;
+            tasksPercentage = totalTasks ? Math.floor((completedTasks / totalTasks) * 100) : 0;
+
+
+        }
+
+        res.status(200).json({
+            courseDetails: {
+                id: course.id,
+                name: course.name,
+                description: course.description,
+                totalLectures,
+                totalTasks
+            },
+            lectures: course.lectures.map(lecture => ({
+                id: lecture.id,
+                tasks: lecture.tasks.map(task => ({
+                    id: task.id,
+                    description: task.description
+                }))
+            })),
+            progress: {
+                LecturePercentage,
+                tasksPercentage
+            }
+        });
+
+    } catch (err) {
+        console.error(err);
+        return next(new ApiError("Failed to fetch course details", 500));
+    }
+});
