@@ -20,7 +20,7 @@ const Course = require('./coures');
 const Content = require('./content');
 const Tag = require('./tag');
 const Category = require('./category');
-
+const UserTaskProgress = require('./userTaskPrpgress');
 
 // Define associations
 User.hasOne(UserCourseProgress,{foreignKey:"userId"})
@@ -39,6 +39,7 @@ Lecture.hasMany(Task, { foreignKey: 'lectureId',
 Task.belongsTo(Lecture, { foreignKey: 'lectureId',
   as: 'lecture',
  });
+
 
 Lecture.hasMany(Content, { foreignKey: 'lectureId' });
 Content.belongsTo(Lecture, { foreignKey: 'lectureId' })
@@ -91,6 +92,12 @@ ChatMessage.belongsTo(User, { foreignKey: "receiverId", as: "Receiver" });
 User.hasMany(Notification, { foreignKey: "userId" });
 Notification.belongsTo(User, { foreignKey: "userId" });
 
+User.hasMany(UserTaskProgress, { foreignKey: "userId" });
+UserTaskProgress.belongsTo(User, { foreignKey: "userId" });
+
+Task.hasMany(UserTaskProgress, { foreignKey: "taskId" });
+UserTaskProgress.belongsTo(Task, { foreignKey: "taskId" });
+
 module.exports = {
   sequelize,
   Sequelize,
@@ -111,5 +118,6 @@ module.exports = {
   Task,
   UserCourseProgress,
   Tag,
-  Category
+  Category,
+  UserTaskProgress,
 };

@@ -3,6 +3,7 @@ const verifyRole = require('../utils/verifyRole');
 const {courseValidator} = require('../utils/validators/courseValidator');
 const protect = require('../middlewares/protect');
 const progressRoutes = require('./progressRoutes'); 
+const taskProgressRoutes = require('./taskProgressRoute');
 const router = require('express').Router();
 
 router.get("/", getAllCourses);
@@ -13,7 +14,9 @@ router.post("/",protect, verifyRole("educator"),courseValidator, createCourse);
 router.put("/:id",protect, verifyRole("educator"), updateCourse);
 router.delete("/:id",protect, verifyRole("educator"),deleteCourseById);
 
-//course progress Routes
-router.use("/",progressRoutes);
+//progress Routes
+router.use("/", progressRoutes);
+router.use("/", taskProgressRoutes);
 
 module.exports = router;
+

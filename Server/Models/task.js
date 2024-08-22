@@ -44,7 +44,7 @@ Task.init({
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-            modelName: 'lectures',
+            model: 'lectures',
             key: 'id',
        },
        field: 'lecture_id',
