@@ -10,7 +10,6 @@ const UserPreference = require("./user_preference");
 const AIInsight = require("./ai_insight");
 const StreamingContent = require("./streaming_content");
 const BookResource = require("./book_resource");
-const Content = require("./content");
 const DiscussionThread = require("./discussion_thread");
 const DiscussionPost = require("./discussion_post");
 const ChatMessage = require("./chat_message");
@@ -18,9 +17,10 @@ const Notification = require("./notification");
 const Lecture = require('./lecture');
 const Task = require('./task');
 const Course = require('./coures');
+const Content = require('./content');
+const Tag = require('./tag');
+const Category = require('./category');
 const UserTaskProgress = require('./userTaskPrpgress');
-
-
 
 // Define associations
 User.hasOne(UserCourseProgress,{foreignKey:"userId"})
@@ -71,6 +71,13 @@ Content.belongsTo(User, { foreignKey: "uploadedBy" });
 User.hasMany(DiscussionThread, { foreignKey: "createdBy" });
 DiscussionThread.belongsTo(User, { foreignKey: "createdBy" });
 
+Content.belongsToMany(Tag, { through: "ContentTags" ,  as: "contentTags", foreignKey: "contentId"});
+Tag.belongsToMany(Content, { through: "ContentTags" ,  as: "contents", foreignKey: "tagId"});
+
+Content.belongsToMany(Category, { through: "ContentCategories" ,  as: "contentCategories", foreignKey: "contentId"});
+Category.belongsToMany(Content, { through: "ContentCategories" ,  as: "contents", foreignKey: "categoryId"});
+
+
 DiscussionThread.hasMany(DiscussionPost, { foreignKey: "threadId" });
 DiscussionPost.belongsTo(DiscussionThread, { foreignKey: "threadId" });
 
@@ -110,5 +117,7 @@ module.exports = {
   Lecture,
   Task,
   UserCourseProgress,
+  Tag,
+  Category,
   UserTaskProgress,
 };

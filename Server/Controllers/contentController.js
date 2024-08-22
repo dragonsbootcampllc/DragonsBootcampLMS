@@ -1,189 +1,249 @@
-const { Content, Lecture } = require('../Models/index');
-const { validationResult } = require('express-validator');
-const asyncHandler = require('express-async-handler');
-const ApiError = require('../utils/ApiError');
+const { Content, Tag, Category, Lecture } = require("../Models/index");
+const asyncHandler = require("express-async-handler");
+const ApiError = require("../utils/ApiError");
+const { Op } = require("sequelize");
+const { validationResult } = require("express-validator");
 
-/**
- * @desc Ensure lecture exists
- * @route Middleware
- */
 const ensureLectureExists = async (lectureId) => {
-    const lecture = await Lecture.findByPk(lectureId);
-    if (!lecture) {
-        throw new ApiError("Lecture not found", 404);
-    }
-    return lecture;
+  const lecture = await Lecture.findByPk(lectureId);
+  if (!lecture) {
+    throw new ApiError("Lecture not found", 404);
+  }
+  return lecture;
 };
 
-/**
- * @desc Create a content
- * @route POST /api/lecture/:lectureId/content
- * @access Educator
- */
 exports.createContent = asyncHandler(async (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return next(new ApiError(errors.array().map(err => err.msg).join(', '), 400));
+  const {
+    title,
+    description,
+    contentType,
+    contentUrl,
+    contentText,
+    tags,
+    categories,
+  } = req.body;
+  const lectureId = req.params.lectureId;
+  const uploadedBy = req.user.id;
+  if (!title || !description || !contentType || !uploadedBy || !lectureId) {
+    return next(new ApiError("All fields are required", 400));
+  }
+  await ensureLectureExists(lectureId);
+
+  try {
+    if (req.file) {
+      const resourceType = req.file.mimetype.startsWith("video")
+        ? "video"
+        : "auto";
+      //! TODO: handle file upload to a different service
     }
 
-    const { title, description, type, url, file, text} = req.body;
-    const lectureId = req.params.lectureId;
-    const uploadedBy = req.user.id;
-    console.log(req.params);
-
-    await ensureLectureExists(lectureId);
-
-    try {
-        const content = await Content.create({
-            title,
-            description,
-            contentType: type,
-            contentUrl: url || null,
-            contentFile: file || null,
-            contentText: text || null,
-            uploadedBy,
-            lectureId,
-        });
-
-        return res.status(201).json(content);
-    } catch (err) {
-        return next(new ApiError(err.message, 500));
+    // Validate content type
+    if (contentType === "link" && !contentUrl) {
+      return res
+        .status(400)
+        .json({ error: "Content URL is required for link type." });
     }
+    if (contentType === "file" && !req.file) {
+      return res.status(400).json({ error: "File is required for file type." });
+    }
+    if (contentType === "text" && !contentText) {
+      return res
+        .status(400)
+        .json({ error: "Text content is required for text type." });
+    }
+
+    // Prepare tags and categories
+    const tagArray = tags ? tags.split(",").map((tag) => tag.trim()) : [];
+    const categoryArray = categories
+      ? categories.split(",").map((category) => category.trim())
+      : [];
+
+    // Create content with associations
+    const newContent = await Content.create(
+      {
+        title,
+        description,
+        contentType,
+        contentText,
+        uploadedBy,
+        lectureId,
+        contentUrl,
+        contentTags: tagArray.map((name) => ({ name })),
+        contentCategories: categoryArray.map((name) => ({ name })),
+      },
+      {
+        include: [
+          { model: Tag, as: "contentTags" },
+          { model: Category, as: "contentCategories" },
+        ],
+      }
+    );
+
+    const contentWithAssociations = await Content.findByPk(newContent.id, {
+      include: [
+        { model: Tag, as: "contentTags" },
+        { model: Category, as: "contentCategories" },
+      ],
+    });
+
+    res.status(201).json({
+      status: "success",
+      data: contentWithAssociations,
+    });
+  } catch (error) {
+    console.error("Error creating content:", error);
+    res.status(500).json({ error: "Internal server error." });
+  }
 });
 
-/**
- * @desc Get all contents
- * @route GET /api/lecture/:lectureId/content
- * @param page - number of page
- * @param limit - number of items per page
- * @example /api/lecture/1/content?page=1&limit=10
- * @access Educator, Student
- */
-exports.getContents = asyncHandler(async (req, res, next) => {
-    const lectureId = req.params.lectureId;
+exports.getAllContents = asyncHandler(async (req, res, next) => {
+  const lectureId = req.params.lectureId;
+  const query = req.query;
 
-    await ensureLectureExists(lectureId);
+  const limit = query.limit || 10;
+  const page = query.page || 1;
+  const skip = (page - 1) * limit;
 
-    try {
-        const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 10;
-        const offset = (page - 1) * limit;
+  const { tags, categories } = req.query;
 
-        const { count, rows: contents } = await Content.findAndCountAll({
-            where: {
-                lectureId
-            },
-            limit,
-            offset,
-        });
+  let whereClause = { lectureId };
+  let includeClause = [
+    { model: Tag, as: "contentTags", through: { attributes: [] } },
+    { model: Category, as: "contentCategories", through: { attributes: [] } },
+  ];
 
-        return res.status(200).json({
-            totalItems: count,
-            totalPages: Math.ceil(count / limit),
-            currentPage: page,
-            contents,
-        });
-    } catch (err) {
-        return next(new ApiError(err.message, 500));
-    }
+  if (tags) {
+    includeClause[0].where = { name: { [Op.in]: tags.split(",") } };
+  }
+
+  if (categories) {
+    includeClause[1].where = { name: { [Op.in]: categories.split(",") } };
+  }
+
+  const { count, rows } = await Content.findAndCountAll({
+    where: whereClause,
+    include: includeClause,
+    limit,
+    skip,
+    distinct: true,
+  });
+
+  const totalPages = Math.ceil(count / limit);
+
+  res.status(200).json({
+    status: "success",
+    data: rows,
+    pagination: {
+      currentPage: page,
+      totalPages,
+      totalItems: count,
+      itemsPerPage: limit,
+    },
+  });
 });
 
-/**
- * @desc Get a content
- * @route GET /api/lecture/:lectureId/content/:contentId
- * @access Educator, Student
- */
-exports.getContent = asyncHandler(async (req, res, next) => {
-    const { lectureId } = req.params.lectureId;
-    const { contentId } = req.params.contentId;
+exports.getContentById = asyncHandler(async (req, res, next) => {
+  const { lectureId, contentId } = req.params;
+  const content = await Content.findOne({
+    where: {
+      id: contentId,
+      lectureId,
+    },
+    include: [
+      { model: Tag, as: "contentTags", through: { attributes: [] } },
+      { model: Category, as: "contentCategories", through: { attributes: [] } },
+    ],
+  });
+  if (!content) {
+    return next(new ApiError("Content not found", 404));
+  }
 
-    await ensureLectureExists(lectureId);
-
-    try {
-        const content = await Content.findOne({
-            where: {
-                id: contentId,
-                lectureId,
-            },
-        });
-
-        if (!content) {
-            return next(new ApiError("Content not found", 404));
-        }
-
-        return res.status(200).json(content);
-    } catch (err) {
-        return next(new ApiError(err.message, 500));
-    }
+  res.status(200).json({
+    status: "success",
+    data: content,
+  });
 });
 
-/**
- * @desc Update a content
- * @route PATCH /api/lecture/:lectureId/content/:contentId
- * @access Educator
- */
+// Update content
 exports.updateContent = asyncHandler(async (req, res, next) => {
-    const { title, description, type, url, file, text } = req.body;
-    const { lectureId } = req.params.lectureId;
-    const { contentId } = req.params.contentId;
+  const { title, description, contentType, contentText, tags, categories } =
+    req.body;
+  const { lectureId, contentId } = req.params;
 
-    await ensureLectureExists(lectureId);
+  const content = await Content.findOne({
+    where: {
+      id: contentId,
+      lectureId,
+    },
+  });
 
-    try {
-        let content = await Content.findOne({
-            where: {
-                id: contentId,
-                lectureId,
-            },
-        });
+  if (!content) {
+    return next(new ApiError("Content not found", 404));
+  }
 
-        if (!content) {
-            return next(new ApiError("Content not found", 404));
-        }
+  content.title = title || content.title;
+  content.description = description || content.description;
+  content.contentType = contentType || content.contentType;
+  content.contentText = contentText || content.contentText;
 
-        const updatedContent = {
-            title: title || content.title,
-            description: description || content.description,
-            contentType: type || content.contentType,
-            contentUrl: url || content.contentUrl,
-            contentFile: file || content.contentFile,
-            contentText: text || content.contentText,
-        };
+  if (req.file) {
+    const resourceType = req.file.mimetype.startsWith("video")
+      ? "video"
+      : "auto";
+    //! TODO: handle file upload to a different service
+  }
 
-        content = await content.update(updatedContent);
+  await content.save();
 
-        return res.status(200).json(content);
-    } catch (err) {
-        return next(new ApiError(err.message, 500));
-    }
+  // Update tags
+  if (tags) {
+    const tagArray = tags.split(",").map((tag) => tag.trim());
+    const tagInstances = await Promise.all(
+      tagArray.map((name) => Tag.findOrCreate({ where: { name } }))
+    );
+    await content.setContentTags(tagInstances.map(([tag]) => tag));
+  }
+
+  // Update categories
+  if (categories) {
+    const categoryArray = categories
+      .split(",")
+      .map((category) => category.trim());
+    const categoryInstances = await Promise.all(
+      categoryArray.map((name) => Category.findOrCreate({ where: { name } }))
+    );
+    await content.setContentCategories(
+      categoryInstances.map(([category]) => category)
+    );
+  }
+
+  const updatedContent = await Content.findByPk(contentId, {
+    include: [
+      { model: Tag, as: "contentTags", through: { attributes: [] } },
+      { model: Category, as: "contentCategories", through: { attributes: [] } },
+    ],
+  });
+
+  res.status(200).json({
+    status: "success",
+    data: updatedContent,
+  });
 });
 
-/**
- * @desc Delete a content
- * @route DELETE /api/lecture/:lectureId/content/:contentId
- * @access Educator
- */
+// DELETE content
 exports.deleteContent = asyncHandler(async (req, res, next) => {
-    const { lectureId } = req.params.lectureId;
-    const { contentId } = req.params.contentId;
+  const { id } = req.params;
 
-    await ensureLectureExists(lectureId);
+  const content = await Content.findByPk(id);
 
-    try {
-        const content = await Content.findOne({
-            where: {
-                id: contentId,
-                lectureId,
-            },
-        });
+  if (!content) {
+    return next(new ApiError("Content not found", 404));
+  }
 
-        if (!content) {
-            return next(new ApiError("Content not found", 404));
-        }
+  await content.destroy();
 
-        await content.destroy();
-        return res.status(200).json({ message: "Content deleted successfully" });
-    } catch (err) {
-        return next(new ApiError(err.message, 500));
-    }
+  res.status(204).json({
+    status: "success",
+    data: null,
+  });
 });
