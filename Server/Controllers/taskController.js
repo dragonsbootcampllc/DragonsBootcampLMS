@@ -1,4 +1,4 @@
-const {Task} = require('../Models/index');
+const {Task, UserTaskProgress} = require('../Models/index');
 const asyncHandler = require('express-async-handler');
 const {Lecture} = require('../Models/index');
 const ApiError = require('../utils/ApiError');
@@ -110,4 +110,22 @@ exports.deleteTaskById = asyncHandler(async (req, res, next) => {
             new ApiError(err.message, 500)
         );
     }
+});
+
+exports.getRecentTask = asyncHandler(async (req, res, next) => {
+    const limit = parseInt(req.params.limit, 10);
+
+    if (isNaN(limit) || limit <= 0 || limit > 4) {
+        return res.status(400).json({ message: "Invalid limit parameter" });
+    }
+
+    const tasks = await Task.findAll({
+        order: [['createdat', 'DESC']],
+        limit,
+        include: [{
+            model: UserTaskProgress,
+        }]
+    });
+
+    return res.status(200).json({"message": "sucess", tasks});
 });
