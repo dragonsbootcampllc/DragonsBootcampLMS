@@ -1,6 +1,6 @@
 const { Op } = require("sequelize");
-const { User } = require("../Models/index.js");
-const {UserPreference} = require('../Models/index.js')
+const { User, UserProfile } = require("../Models/index.js");
+const { UserPreference } = require("../Models/index.js");
 const asyncHandler = require("express-async-handler");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
@@ -8,8 +8,6 @@ const ApiError = require("../utils/ApiError");
 const generateOTP = require("../utils/GenerateOTP.js");
 const sendEmail = require("../Services/Mailer.js");
 const crypto = require("crypto");
-
-
 
 async function signToken(userId) {
   const user = await User.findByPk(userId);
@@ -28,9 +26,7 @@ async function signToken(userId) {
 exports.SignUp = asyncHandler(async (req, res, next) => {
   const { username, email, role, password } = req.body;
   if (!username || !password || !role || !email) {
-    return next(
-      new ApiError("All fields are required", 400)
-    );
+    return next(new ApiError("All fields are required", 400));
   }
   //validate username
   const name_not_taken = await User.findOne({
@@ -45,16 +41,22 @@ exports.SignUp = asyncHandler(async (req, res, next) => {
     },
   });
   if (email_not_taken || name_not_taken) {
-    if (!email_not_taken.verified && new Date(email_not_taken.otp_expiry_time) > Date.now()) {
+    if (
+      !email_not_taken.verified &&
+      new Date(email_not_taken.otp_expiry_time) > Date.now()
+    ) {
       req.userId = email_not_taken.id;
       return next();
     }
-    if(!email_not_taken.verified && new Date(email_not_taken.otp_expiry_time) < Date.now()){
+    if (
+      !email_not_taken.verified &&
+      new Date(email_not_taken.otp_expiry_time) < Date.now()
+    ) {
       return next(new ApiError("You Need To verfiy your account", 400));
     }
-      return next(
-        new ApiError("you already have an account try logging in", 400)
-      );
+    return next(
+      new ApiError("you already have an account try logging in", 400)
+    );
   }
   try {
     const user = await User.create({
@@ -63,12 +65,19 @@ exports.SignUp = asyncHandler(async (req, res, next) => {
       email,
       role,
     });
+    // create the prefrances model to the user
+    const preferences = await UserPreference.create({
+      userId: user.id,
+    });
+    // create user profile model
+    const userProfile = await UserProfile.create({
+      userId: user.id,
+    });
+
     req.userId = user.id;
     next();
   } catch (err) {
-    return next(
-      new ApiError(`${err.message}`, 500)
-    );
+    return next(new ApiError(`${err.message}`, 500));
   }
 });
 
@@ -86,11 +95,13 @@ exports.sendOTP = asyncHandler(async (req, res, next) => {
     });
   }
 
-  // if the token date is not expired 
-  if (!user.verified && user.otp && new Date(user.otp_expiry_time) < Date.now()) {
-    return next(
-      new ApiError("You have already requested an OTP", 400)
-    );
+  // if the token date is not expired
+  if (
+    !user.verified &&
+    user.otp &&
+    new Date(user.otp_expiry_time) < Date.now()
+  ) {
+    return next(new ApiError("You have already requested an OTP", 400));
   }
 
   const new_otp = generateOTP(6);
@@ -107,9 +118,7 @@ exports.sendOTP = asyncHandler(async (req, res, next) => {
     }
   );
   if (affectedCount[0] == 0) {
-    return next(
-      new ApiError("User not found", 404)
-    );
+    return next(new ApiError("User not found", 404));
   }
   const updatedUser = await User.findByPk(userId);
   // TODO send mail
@@ -135,21 +144,15 @@ exports.verifyOTP = asyncHandler(async (req, res, next) => {
   });
 
   if (!user) {
-    return next(
-      new ApiError("Email is invalid or OTP is expired", 400)
-    );
+    return next(new ApiError("Email is invalid or OTP is expired", 400));
   }
 
   if (user.verified) {
-    return next(
-      new ApiError("Email is already verified", 400)
-    );
+    return next(new ApiError("Email is already verified", 400));
   }
 
   if (!user.correctOTP(otp)) {
-    return next(
-      new ApiError("The OTP is incorrect", 400)
-    );
+    return next(new ApiError("The OTP is incorrect", 400));
   }
 
   // OTP is correct
@@ -186,41 +189,16 @@ exports.login = asyncHandler(async (req, res, next) => {
     },
   });
 
-  // ***** SEE: uncomment after the signup endpoint finished *****
-
-  if(!user){
+  if (!user) {
     return next(new ApiError("User not found", 404));
   }
-  const isPasswordCorrect = await bcrypt.compare(password,user.password_hash);
+  const isPasswordCorrect = await bcrypt.compare(password, user.password_hash);
   if (!isPasswordCorrect) {
     return next(new ApiError("Password are wrong!", 404));
   }
 
-  // ***** SEE: For Development env only *****
-  // if (!user || user.dataValues.password_hash !== password) {
-  //   return next(new ApiError("Credentials are wrong!", 404));
-  // }
-
   const token = await signToken(user.id);
-
-  const user_preferences = await UserPreference.findOne({
-    where:
-    {
-      userId: user.id,
-    },
-  })
-
-  try {
-    if (!user_preferences) {
-      const preferences = await UserPreference.create({
-        userId: user.id,
-      });
-    }
-    
-    return res.status(200).json({status: "success", token});
-  } catch (err) {
-    return next(new ApiError(err.message, 500));
-  }
+  return res.status(200).json({ status: "success", token });
 });
 
 exports.forgotPassword = asyncHandler(async (req, res, next) => {
@@ -237,7 +215,8 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
 
   //https:// ...?code=asa5s1d5a4
   const resetToken = foundUser.createPasswordResetToken();
-  const resetUrl = `http://localhost:3000/auth/new-password/?token=${resetToken}`;
+  const front_reset_password_url = process.env.FRONTEND_RESET_PASSWORD_URL;
+  const resetUrl = `${front_reset_password_url}/?token=${resetToken}`;
 
   try {
     await User.update(
@@ -275,7 +254,10 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
       }
     );
     return next(
-      new ApiError("there was an error sending the email, Please try again later", 500)
+      new ApiError(
+        "there was an error sending the email, Please try again later",
+        500
+      )
     );
   }
 });
@@ -299,7 +281,7 @@ exports.resetPassword = asyncHandler(async (req, res, next) => {
       passwordResetToken: hashedToken,
       passwordResetExpires: { [Op.gt]: Date.now() },
     },
-    attributes:{include:["email","password_hash"]},
+    attributes: { include: ["email", "password_hash"] },
   });
 
   // if token has Expired
@@ -310,7 +292,10 @@ exports.resetPassword = asyncHandler(async (req, res, next) => {
     });
   }
   // check if the password differs from the saved one
-  const isSamePassword = await bcrypt.compare(password,foundUser.password_hash);
+  const isSamePassword = await bcrypt.compare(
+    password,
+    foundUser.password_hash
+  );
 
   if (isSamePassword) {
     return next(
@@ -322,7 +307,7 @@ exports.resetPassword = asyncHandler(async (req, res, next) => {
   await User.update(
     {
       password_hash: password,
-      passwordChangedAt:Date.now(),
+      passwordChangedAt: Date.now(),
       passwordResetToken: null,
       passwordResetExpires: null,
     },

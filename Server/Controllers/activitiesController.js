@@ -2,7 +2,7 @@ const asyncHandler = require('express-async-handler');
 const { UserActivity, User } = require('../Models/index');
 const ApiError = require('../utils/ApiError');
 
-const getActivities = asyncHandler(async (req, res) => {
+exports.getActivities = asyncHandler(async (req, res) => {
     const { page = 1, limit = 20 } = req.query;
     const offset = (page - 1) * limit;
 
@@ -20,7 +20,7 @@ const getActivities = asyncHandler(async (req, res) => {
     res.json({ activities });
 });
 
-const getActivity = asyncHandler(async (req, res) => {
+exports.getActivity = asyncHandler(async (req, res) => {
     const { id } = req.params;
 
     const activity = await UserActivity.findByPk(id,{
@@ -37,7 +37,7 @@ const getActivity = asyncHandler(async (req, res) => {
     res.json({ activity });
 });
 
-const getUserActivities = asyncHandler(async (req, res) => {
+exports.getUserActivities = asyncHandler(async (req, res) => {
     const { user } = req;
 
     const { page = 1, limit = 20 } = req.query;
@@ -52,7 +52,7 @@ const getUserActivities = asyncHandler(async (req, res) => {
     res.json({ activities });
 });
 
-const getUserActivity = asyncHandler(async (req, res) => {
+exports.getUserActivity = asyncHandler(async (req, res) => {
     const { user } = req;
     const { id } = req.params;
 
@@ -69,9 +69,17 @@ const getUserActivity = asyncHandler(async (req, res) => {
     res.json({ activity });
 })
 
-module.exports = {
-    getActivities,
-    getActivity,
-    getUserActivities,
-    getUserActivity,
-};
+exports.logUserActivity = asyncHandler(async (req, res) => {
+    const { user } = req;
+    const { activityType, activityDetails } = req.body;
+
+    const activity = await UserActivity.create({
+        userId: user.id,
+        activityType,
+        activityDetails,
+    },{returning: true});
+
+    activity.save();
+
+    res.status(201).json({ activity });
+});

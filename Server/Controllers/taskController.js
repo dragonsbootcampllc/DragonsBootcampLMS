@@ -98,7 +98,6 @@ exports.updateTask = asyncHandler(async (req, res, next) => {
 
 exports.deleteTaskById = asyncHandler(async (req, res, next) => {
     const id = req.params.id;
-    console.log(id);
     try {
         const task = await Task.findByPk(id);
         if (!task) {

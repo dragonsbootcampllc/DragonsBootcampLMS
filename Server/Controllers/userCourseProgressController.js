@@ -1,4 +1,4 @@
-const { UserCourseProgress } = require('../Models/index');
+const { UserCourseProgress, Course } = require('../Models/index');
 const asyncHandler = require('express-async-handler');
 const ApiError = require('../utils/ApiError');
 
@@ -36,7 +36,13 @@ exports.retrieveProgress = asyncHandler(async (req, res, next) => {
         return next(new ApiError(400, 'Course ID and User ID are required.'));
     }
 
-    const progress = await UserCourseProgress.findOne({ where: { userId, courseId: id } });
+    const progress = await UserCourseProgress.findOne({ 
+        where: { userId, courseId: id },
+        include:{
+            model: Course
+        }
+    });
+
 
     if (!progress) {
         return next(new ApiError(404, 'Progress not found.'));

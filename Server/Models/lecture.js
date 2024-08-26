@@ -37,6 +37,10 @@ Lecture.init({
     order: {
         type: DataTypes.INTEGER,
     },
+    estimated_time:{
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+    },
     courseId: {
         type: DataTypes.INTEGER,
         allowNull: false,
