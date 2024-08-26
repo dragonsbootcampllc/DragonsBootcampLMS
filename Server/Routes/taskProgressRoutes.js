@@ -1,7 +1,9 @@
-const {calculateAverageTaskProgress} = require('../Controllers/taskProgressController');
-const protect = require('../middlewares/protect');
-const router = require('express').Router();
+const { markTaskAsFinished } = require('../Controllers/taskController');
+const { calculateAverageTaskProgress } = require('../Controllers/taskProgressController');
+const protect = require("../middlewares/protect");
+const router = require("express").Router();
 
+// Route to update task progress
 /**
  * @swagger
  * /api/lectures/{lectureId}/tasks/progress:
@@ -30,7 +32,7 @@ const router = require('express').Router();
  *         description: Internal server error
  */
 
-
 router.get("/:lectureId/tasks/progress", protect, calculateAverageTaskProgress);
+router.post(":taskId/finish",protect, markTaskAsFinished);
 
 module.exports = router;

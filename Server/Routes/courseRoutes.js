@@ -1,6 +1,7 @@
 const {createCourse, getAllCourses, getCourseById, updateCourse, deleteCourseById, getCourseDetails} = require('../Controllers/courseController');
 const verifyRole = require('../utils/verifyRole');
 const {courseValidator} = require('../utils/validators/courseValidator');
+const courseProgressRoutes = require('./courseProgressRoutes');
 const protect = require('../middlewares/protect');
 const progressRoutes = require('./courseProgressRoutes'); 
 const router = require('express').Router();
@@ -140,5 +141,8 @@ router.post("/",protect, verifyRole("educator"),courseValidator, createCourse);
 router.put("/:id",protect, verifyRole("educator"), updateCourse);
 router.delete("/:id",protect, verifyRole("educator"),deleteCourseById);
 router.get('/:courseId/details',protect, getCourseDetails);
+
+// Course's progress Routes
+router.use('/',courseProgressRoutes);
 
 module.exports = router;
