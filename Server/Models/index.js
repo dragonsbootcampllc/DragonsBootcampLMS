@@ -26,6 +26,9 @@ const UserTaskProgress = require('./userTaskPrpgress');
 User.hasOne(UserCourseProgress,{foreignKey:"userId"})
 UserCourseProgress.belongsTo(User,{foreignKey:"userId"})
 
+Course.hasMany(UserCourseProgress,{foreignKey:"courseId"})
+UserCourseProgress.belongsTo(Course,{foreignKey:"courseId"})
+
 Course.hasMany(Lecture, { foreignKey: 'courseId',
   as: 'lectures',
  });

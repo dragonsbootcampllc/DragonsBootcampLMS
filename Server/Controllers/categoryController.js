@@ -2,6 +2,7 @@ const {Category, Content, Tag} = require('../Models/index');
 const asyncHandler = require('express-async-handler');
 const ApiError = require('../utils/ApiError');
 const {Op} = require('sequelize');
+const PickExistVars = require('../utils/PickExistVars');
 
 exports.createCategory = asyncHandler(async (req, res, next) => {
     try{
@@ -59,6 +60,7 @@ exports.getCategoryById = asyncHandler(async (req, res, next) => {
 
 exports.updateCategory = asyncHandler(async (req, res, next) => {
     const id = req.params.id;
+    let updatedValues = PickExistVars(req.body,["name"]);
     try{
         const category = await Category.findByPk(id);
         if (!category) {
@@ -66,7 +68,9 @@ exports.updateCategory = asyncHandler(async (req, res, next) => {
                 new ApiError("No category was found with this id", 404)
             );
         }
-        await category.update(req.body);
+        await category.update(
+            updatedValues
+        );
         return res.status(200).json({
             status: "success",
             message: "Category updated successfully",

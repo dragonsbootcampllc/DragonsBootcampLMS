@@ -1,15 +1,15 @@
-const {UserTaskProgress, Course, Task, Lecture} = require('../Models/index');
+const {UserTaskProgress, Task, Lecture} = require('../Models/index');
 const ApiError = require('../utils/ApiError');
 const asyncHandler = require('express-async-handler');
 
 exports.calculateAverageTaskProgress = asyncHandler(async (req, res, next) => {
-    const courseId = req.params.courseId;
+    const lectureId = req.params.lectureId;
     const userId = req.user.id;
     
-    const course = await Course.findByPk(courseId);
-    if (!course) {
+    const lecture = await Lecture.findByPk(lectureId);
+    if (!lecture) {
         return next(
-            new ApiError("No course was found with this id", 404)
+            new ApiError("No lecture was found", 404)
         )
     }
 
@@ -18,7 +18,7 @@ exports.calculateAverageTaskProgress = asyncHandler(async (req, res, next) => {
             model: Lecture,
             as: "lecture",
             where: {
-                courseId,
+                lectureId,
             },
         }]
     });
@@ -35,7 +35,8 @@ exports.calculateAverageTaskProgress = asyncHandler(async (req, res, next) => {
 
     const average_progress = (tasks_completed_count / tasks_count) * 100;
 
-    res.status(200).json({average_progress,
+    res.status(200).json({
+        average_progress,
         tasks_count,
         tasks_completed_count,
     })

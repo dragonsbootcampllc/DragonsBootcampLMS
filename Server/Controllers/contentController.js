@@ -98,6 +98,7 @@ exports.createContent = asyncHandler(async (req, res, next) => {
 
 exports.getAllContents = asyncHandler(async (req, res, next) => {
   const lectureId = req.params.lectureId;
+  console.log("lectureId", lectureId);
   const query = req.query;
 
   const limit = query.limit || 10;

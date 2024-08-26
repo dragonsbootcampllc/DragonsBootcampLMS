@@ -20,7 +20,7 @@ UserActivity.init({
     field: 'userid',
   },
   activityType: {
-    type: DataTypes.STRING,
+    type: DataTypes.ENUM(...activitiesTypes),
     field: 'activity_type'
   },
   activityDetails: {

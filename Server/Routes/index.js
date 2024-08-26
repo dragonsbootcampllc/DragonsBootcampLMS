@@ -5,7 +5,6 @@ const taskRoutes = require('./taskRoute');
 const activitiesRoutes = require('./activitiesRoutes');
 const lectureRoutes = require('./lectureRoutes');
 const courseRoutes = require('./courseRoutes');
-const contentRoutes = require('./contentRoutes');
 const tagRoutes = require('./tagRoutes');
 const categoryRoutes = require('./categoryRoutes');
 

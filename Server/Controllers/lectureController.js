@@ -1,13 +1,36 @@
 const { Lecture, Course, Task } = require("../Models/index");
 const asyncHandler = require("express-async-handler");
 const ApiError = require("../utils/ApiError");
+const PickExistVars = require("../utils/PickExistVars");
 
 exports.uploadLecture = asyncHandler(async (req, res, next) => {
-  const { startTime, endTime, type, recordedLink, text, order, courseId } =
+  const { startTime, endTime, type, recordedLink, text, order, courseId ,estimated_time} =
     req.body;
-  console.log(startTime, endTime, type, order, courseId);
   if (!startTime || !endTime || !type || !courseId) {
     return res.status(400).json({ message: "Required fields are missing" });
+  }
+
+  // Validate start and end time
+  const startTimeObj = new Date(startTime);
+  const endTimeObj = new Date(endTime);
+
+  if (!(startTimeObj instanceof Date && !isNaN(startTimeObj.getTime()))) {
+    return res.status(400).json({ message: "Invalid start time" });
+  }
+
+  if (!(endTimeObj instanceof Date && !isNaN(endTimeObj.getTime()))) {
+    return res.status(400).json({ message: "Invalid end time" });
+  }
+
+  // Check if start time is earlier than end time
+  if (startTimeObj >= endTimeObj) {
+    return res.status(400).json({ message: "Start time must be earlier than end time" });
+  }
+
+  // Check if start time and end time are in the past
+  const currentTime = new Date();
+  if (startTimeObj < currentTime || endTimeObj < currentTime) {
+    return res.status(400).json({ message: "Start time and end time cannot be in the past" });
   }
 
   const course = await Course.findByPk(courseId);
@@ -24,6 +47,7 @@ exports.uploadLecture = asyncHandler(async (req, res, next) => {
       text,
       order,
       courseId,
+      estimated_time,
     });
     return res.status(201).json(lecture);
   } catch (err) {
@@ -47,22 +71,57 @@ exports.getLectureById = asyncHandler(async (req, res, next) => {
 });
 
 exports.updateLectureById = asyncHandler(async (req, res, next) => {
-  const { startTime, endTime, type, recordedLink, text, order, courseId } = req.body;
+  const updatedValues = PickExistVars(req.body, [ "startTime", "endTime", "type", "recordedLink", "text", "order","courseId" ,"estimated_time"]);
   const id = req.params.id;
 
   const lecture = await Lecture.findByPk(id);
   if (!lecture) {
     return next(new ApiError("No lecture was found with this id", 404));
   }
-  if (courseId) {
-    const course = await Course.findByPk(courseId);
+  if (updatedValues.courseId) {
+    const course = await Course.findByPk(updatedValues.courseId);
     if (!course) {
       return next(new ApiError("No course was found with this id", 404));
     }
   }
+
+  const currentTime = new Date();
+
+  // Validate start and end time
+  if (updatedValues.startTime) {
+    const startTimeObj = new Date(updatedValues.startTime);
+    if (!(startTimeObj instanceof Date && !isNaN(startTimeObj.getTime()))) {
+      return res.status(400).json({ message: "Invalid start time" });
+    }
+    // Check if start time and end time are in the past
+    if (startTimeObj < currentTime) {
+      return res.status(400).json({ message: "Start time cannot be in the past" });
+    }
+  }
+
+  if (updatedValues.endTime) {
+    const endTimeObj = new Date(updatedValues.endTime);
+    if (!(endTimeObj instanceof Date && !isNaN(endTimeObj.getTime()))) {
+      return res.status(400).json({ message: "Invalid end time" });
+    }
+    // Check if start time and end time are in the past
+    if (endTimeObj < currentTime) {
+      return res.status(400).json({ message: "End time cannot be in the past" });
+    }
+  }
+
+  // Check if start time is earlier than end time
+  if (updatedValues.startTime && updatedValues.endTime) {
+    const startTimeObj = new Date(updatedValues.startTime);
+    const endTimeObj = new Date(updatedValues.endTime);
+    if (startTimeObj >= endTimeObj) {
+      return res.status(400).json({ message: "Start time must be earlier than end time" });
+    }
+  }
+
   lecture.set(
     {
-        ...req.body,
+        ...updatedValues,
     },
     {
       where: {
