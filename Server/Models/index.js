@@ -2,7 +2,7 @@ const Sequelize = require("sequelize");
 const config = require("../config/config");
 const sequelize = require("../config/database");
 
-const UserCourseProgress = require("./userCourseProgress")
+const UserCourseProgress = require("./usercourseprogress")
 const User = require("./user");
 const UserProfile = require("./user_profile");
 const UserActivity = require("./user_activity");
@@ -21,7 +21,7 @@ const Content = require('./content');
 const Tag = require('./tag');
 const Category = require('./category');
 const UserTaskProgress = require('./userTaskPrpgress');
-const UserLectureProgress = require("./UserLectureProgress");
+const UserLectureProgress = require("./userlectureprogress");
 
 
 

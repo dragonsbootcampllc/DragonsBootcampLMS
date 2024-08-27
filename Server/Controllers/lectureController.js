@@ -147,7 +147,7 @@ exports.deleteLecture = asyncHandler(async (req, res, next) => {
 
 
 exports.markLectureAsAttended = asyncHandler(async (req, res, next) => {
-  const { lectureId } = req.body;
+  const { lectureId } = req.params;
   const userId = req.user ? req.user.id : null;
   console.log('lecture ID:', lectureId);
   console.log('user ID:', userId);
@@ -208,7 +208,7 @@ exports.markLectureAsAttended = asyncHandler(async (req, res, next) => {
         taskId: {
           [Op.in]: (await Task.findAll({ where: { lectureId } })).map(task => task.id)
         },
-        finished: true
+        is_finished: true
       }
     });
     const tasksPercentage = totalTasks > 0 ? Math.floor(completedTasks / totalTasks) * 100 : 0;

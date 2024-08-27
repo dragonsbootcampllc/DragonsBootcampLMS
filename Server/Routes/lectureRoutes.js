@@ -122,7 +122,7 @@ const router = require('express').Router();
 
 router.get("/:id", protect, verifyRole('educator', 'student'), getLectureById);
 router.post("/", protect, verifyRole('educator'), lectureValidator, uploadLecture);
-router.put("/:id", protect, verifyRole('educator'), updateLectureById);
+router.patch("/:id", protect, verifyRole('educator'), updateLectureById);
 router.delete("/:id", protect, verifyRole('educator'), deleteLecture);
 
 // Lecture's Content Routes

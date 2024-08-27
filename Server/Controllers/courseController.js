@@ -10,6 +10,8 @@ const {
 const asyncHandler = require("express-async-handler");
 const ApiError = require("../utils/ApiError");
 const { Op } = require("sequelize");
+const PickExistVars = require('../utils/PickExistVars');
+
 
 exports.createCourse = asyncHandler(async (req, res, next) => {
   const { name, description, lectures } = req.body;
@@ -111,7 +113,9 @@ exports.getCourseById = asyncHandler(async (req, res, next) => {
 
 exports.updateCourse = asyncHandler(async (req, res, next) => {
   const id = req.params.id;
-  const { name, description, lectures } = req.body;
+  const {lectures } = req.body;
+  let updatedValues = PickExistVars(req.body,["name","description", "lectures"]);
+
   const user = req.user;
 
   try {
@@ -122,8 +126,7 @@ exports.updateCourse = asyncHandler(async (req, res, next) => {
     }
 
     await course.update({
-      name,
-      description,
+      updatedValues,
       educatorId: user.id,
     });
 

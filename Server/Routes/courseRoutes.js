@@ -3,7 +3,7 @@ const verifyRole = require('../utils/verifyRole');
 const {courseValidator} = require('../utils/validators/courseValidator');
 const courseProgressRoutes = require('./courseProgressRoutes');
 const protect = require('../middlewares/protect');
-const progressRoutes = require('./courseProgressRoutes'); 
+const progressRoutes = require('./courseProgressRoutes');  
 const router = require('express').Router();
 
 
@@ -138,7 +138,7 @@ router.get("/:id", getCourseById);
 
 // protected Routes
 router.post("/",protect, verifyRole("educator"),courseValidator, createCourse);
-router.put("/:id",protect, verifyRole("educator"), updateCourse);
+router.patch("/:id",protect, verifyRole("educator"), updateCourse);
 router.delete("/:id",protect, verifyRole("educator"),deleteCourseById);
 router.get('/:courseId/details',protect, getCourseDetails);
 

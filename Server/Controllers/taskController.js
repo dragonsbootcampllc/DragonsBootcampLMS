@@ -115,14 +115,16 @@ exports.deleteTaskById = asyncHandler(async (req, res, next) => {
 });
 
 exports.markTaskAsFinished = asyncHandler(async (req, res, next) => {
-    const { taskId } = req.body;
+    const { taskId } = req.params;
     const userId = req.user ? req.user.id : null;
-    console.log('user id :',userId);
-
-    const courseId = Lecture.courseId;
+    const { answer } = req.body;
 
     if (!taskId || !userId) {
         return res.status(400).json({ message: "Task ID or User ID is missing" });
+    }
+
+    if (!answer || answer.trim() === "") {
+        return res.status(400).json({ message: "Answer is required to complete the task." });
     }
 
     try {
@@ -141,9 +143,6 @@ exports.markTaskAsFinished = asyncHandler(async (req, res, next) => {
             return next(new ApiError("No task was found with this ID", 404));
         }
 
-        console.log("Lecture ID:", task.lecture.id);
-        console.log("Course ID:", task.lecture.courseId);
-
         const enrollment = await UserCourseProgress.findOne({
             where: {
                 userId,
@@ -152,7 +151,6 @@ exports.markTaskAsFinished = asyncHandler(async (req, res, next) => {
         });
 
         if (!enrollment) {
-            console.log("User is not enrolled in the course related to this task");
             return next(new ApiError('User is not enrolled in the course related to this task', 403));
         }
 
@@ -160,28 +158,45 @@ exports.markTaskAsFinished = asyncHandler(async (req, res, next) => {
             where: { userId, taskId }
         });
 
-        if (!taskProgress) {
-            taskProgress = await UserTaskProgress.create({
-                userId,
-                taskId,
-                finished: true,
-                completionDate: new Date(),
-            });
-        } else {
-            await taskProgress.update({
-                finished: true,
-                completionDate: new Date(),
-            });
+        if (taskProgress) {
+            return res.status(400).json({ message: "You have already submitted an answer for this task." });
         }
+
+        let isFinished = false;
+        let isSolve = false
+
+        if (task.type === "text") {
+            isFinished = true;
+            isSolve = false;
+        } else if (task.type === "options") {
+            if (answer === task.answer) {
+                isFinished = true;
+                isSolve = true;
+            } else {
+                isSolve = false
+                isFinished = true;
+            }
+        } else if (task.type === "code") {
+            isFinished = true;
+            isSolve = false;
+        }
+
+        taskProgress = await UserTaskProgress.create({
+            userId,
+            taskId,
+            is_finished: isFinished,
+            is_solve: isSolve,
+            answer,
+            completed_at: isFinished ? new Date() : null,
+        });
 
         return res.status(200).json({
             id: taskProgress.id,
             userId: taskProgress.userId,
-            taskId: taskProgress.taskId,
-            courseId: task.lecture.courseId,  // Include courseId in the response
-            lectureId: task.lecture.id,       // Include lectureId in the response
-            finished: taskProgress.finished,
-            completionDate: taskProgress.completionDate,
+            finished: taskProgress.is_finished,
+            isSolve,
+            answer,
+            completionDate: taskProgress.completed_at,
             createdAt: taskProgress.createdAt,
             updatedAt: taskProgress.updatedAt
         });

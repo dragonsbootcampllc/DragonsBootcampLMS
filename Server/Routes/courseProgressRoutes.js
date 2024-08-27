@@ -55,7 +55,7 @@ const router = require("express").Router();
  */
 
 
-router.post("/:id/progress", protect,verifyCourseOwner, storeProgress);
-router.get("/:id/progress", protect,verifyCourseOwner, retrieveProgress);
+router.post("/:id/progress", protect, storeProgress);
+router.get("/:id/progress", protect, retrieveProgress);
 
 module.exports = router;
