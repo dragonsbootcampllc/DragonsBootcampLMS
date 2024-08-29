@@ -117,14 +117,14 @@ exports.getRecentTask = asyncHandler(async (req, res, next) => {
     if (isNaN(limit) || limit <= 0 || limit > 4) {
         return res.status(400).json({ message: "Invalid limit parameter" });
     }
-
-    const tasks = await Task.findAll({
-        order: [['createdat', 'DESC']],
+    const tasksprogress = await UserTaskProgress.findAll({
+        where: {
+            userId: req.user.id,
+            is_finished: true,
+        },
+        order: [['completed_at', 'DESC']],
         limit,
-        include: [{
-            model: UserTaskProgress,
-        }]
     });
-
-    return res.status(200).json({"message": "sucess", tasks});
+    
+    return res.status(200).json({"message": "sucess", tasks:tasksprogress});
 });
