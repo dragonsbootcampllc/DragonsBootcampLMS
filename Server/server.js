@@ -1,6 +1,8 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const morgan = require("morgan");
+const http = require('http');
+const socketServer = require('./socketServer');
 
 const swaggerUi = require("swagger-ui-express");
 const swaggerSpec = require('./swagger');
@@ -23,6 +25,9 @@ app.use(globalErrorHandler);
 
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, async () => {
+const server = http.createServer(app);
+const io = socketServer(server);
+
+server.listen(PORT, async () => {
   console.log(`Server is running on port ${PORT}`);
 });

@@ -3,6 +3,7 @@ module.exports = {
     lectureTypes: ["text", "recorded", "online"],
     taskTypes: ["text", "code", "options"],
     roles: ["student", "educator", "admin"],
+    signin_roles: ["student", "educator"],
     activitiesTypes: [
         "login",
         "logout",
