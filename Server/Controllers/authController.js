@@ -8,6 +8,7 @@ const ApiError = require("../utils/ApiError");
 const generateOTP = require("../utils/GenerateOTP.js");
 const sendEmail = require("../Services/Mailer.js");
 const crypto = require("crypto");
+const { signin_roles } = require("../config/options.js");
 
 async function signToken(userId) {
   const user = await User.findByPk(userId);
@@ -27,6 +28,10 @@ exports.SignUp = asyncHandler(async (req, res, next) => {
   const { username, email, role, password } = req.body;
   if (!username || !password || !role || !email) {
     return next(new ApiError("All fields are required", 400));
+  }
+  // validate role from the signin_roles 
+  if(!signin_roles.includes(role)){
+    return next(new ApiError(`Invalid role the role should be on of [${signin_roles.join(" - ")}]`, 400));
   }
   //validate username
   const name_not_taken = await User.findOne({
