@@ -1,6 +1,7 @@
 const {uploadTask, getTaskById, updateTask, deleteTaskById, getRecentTask} = require('../Controllers/taskController');
 const verifyRole = require('../utils/verifyRole');
 const {taskValidator} = require('../utils/validators/taskValidator');
+const taskProgressRoutes = require('./taskProgressRoutes');
 const protect = require('../middlewares/protect');
 const router = require('express').Router();
 
@@ -234,5 +235,8 @@ router.post("/",protect, verifyRole("educator"), taskValidator, uploadTask);
 router.put("/:id",protect, verifyRole("educator"), taskValidator, updateTask);
 router.delete("/:id",protect,verifyRole("educator"),deleteTaskById);
 router.get('/recent/:limit', protect, getRecentTask);
+
+// task progress routes
+router.use('/',taskProgressRoutes);
 
 module.exports = router;

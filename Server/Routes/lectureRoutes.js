@@ -3,7 +3,7 @@ const contentRoutes = require('./contentRoutes');
 const verifyRole = require('../utils/verifyRole');
 const lectureValidator = require('../utils/validators/lectureValidator');
 const protect = require('../middlewares/protect');
-const taskProgressRoutes = require('./taskProgressRoute');
+const lectureProgressRoutes = require('./lectureProgressRoutes');
 const router = require('express').Router();
 
 
@@ -122,13 +122,13 @@ const router = require('express').Router();
 
 router.get("/:id", protect, verifyRole('educator', 'student'), getLectureById);
 router.post("/", protect, verifyRole('educator'), lectureValidator, uploadLecture);
-router.put("/:id", protect, verifyRole('educator'), updateLectureById);
+router.patch("/:id", protect, verifyRole('educator'), updateLectureById);
 router.delete("/:id", protect, verifyRole('educator'), deleteLecture);
 
 // Lecture's Content Routes
 router.use("/:lectureId/content", contentRoutes);
 
-// progress routes
-router.use("/", taskProgressRoutes);
+// lecture progress routes
+router.use('/',lectureProgressRoutes);
 
 module.exports = router;

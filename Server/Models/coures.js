@@ -20,6 +20,10 @@ Course.init({
     educatorId: {
         type: DataTypes.INTEGER,
         allowNull: false,
+        references: {
+            model: 'users',
+            key: 'id',
+        },
         field: 'educator_id',
     },
     lecturesCount: {

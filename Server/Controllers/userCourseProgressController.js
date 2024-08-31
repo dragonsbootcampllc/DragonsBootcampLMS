@@ -6,6 +6,8 @@ const ApiError = require('../utils/ApiError');
 exports.storeProgress = asyncHandler(async (req, res, next) => {
     const { id } = req.params; 
     const userId = req.user.id;
+    console.log("course is :" + id);
+    console.log("userid is :" + userId);
 
     if (!id || !userId) {
         return next(new ApiError(400, 'Course ID and User ID are required.'));

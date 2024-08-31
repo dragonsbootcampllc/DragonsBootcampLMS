@@ -184,7 +184,7 @@ router.get("/", getCategories);
 
 router.get("/:id", getCategoryById);
 
-router.put("/:id",protect, verifyRole("educator"), updateCategory);
+router.patch("/:id",protect, verifyRole("educator"), updateCategory);
 
 router.delete("/:id",protect, verifyRole("educator"), deleteCategoryById);
 

@@ -178,7 +178,7 @@ const router = require('express').Router({mergeParams: true});
 router.post("/",protect, verifyRole("educator"), uploadMiddleware.single('contentFile'),contentValidator, createContent);
 router.get("/", getAllContents);
 router.get("/:contentId", getContentById);
-router.put("/:contentId",protect, verifyRole("educator"), contentValidator, updateContent);
+router.patch("/:contentId",protect, verifyRole("educator"), contentValidator, updateContent);
 router.delete("/:contentId",protect, verifyRole("educator"), deleteContent);
 
 module.exports = router;

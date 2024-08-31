@@ -2,7 +2,7 @@ const Sequelize = require("sequelize");
 const config = require("../config/config");
 const sequelize = require("../config/database");
 
-const UserCourseProgress = require("./userCourseProgress")
+const UserCourseProgress = require("./usercourseprogress")
 const User = require("./user");
 const UserProfile = require("./user_profile");
 const UserActivity = require("./user_activity");
@@ -21,6 +21,10 @@ const Content = require('./content');
 const Tag = require('./tag');
 const Category = require('./category');
 const UserTaskProgress = require('./userTaskPrpgress');
+const UserLectureProgress = require("./userlectureprogress");
+
+
+
 
 // Define associations
 User.hasOne(UserCourseProgress,{foreignKey:"userId"})
@@ -28,6 +32,21 @@ UserCourseProgress.belongsTo(User,{foreignKey:"userId"})
 
 Course.hasMany(UserCourseProgress,{foreignKey:"courseId"})
 UserCourseProgress.belongsTo(Course,{foreignKey:"courseId"})
+
+User.hasMany(Course, { foreignKey: 'educatorId' });
+Course.belongsTo(User, { foreignKey: 'educatorId', as: 'educator' });
+
+User.hasMany(UserLectureProgress, { foreignKey: "userId" });
+UserLectureProgress.belongsTo(User, { foreignKey: "userId" });
+
+Lecture.hasMany(UserLectureProgress, { foreignKey: "lectureId" });
+UserLectureProgress.belongsTo(Lecture, { foreignKey: "lectureId" });
+
+User.hasMany(UserTaskProgress, { foreignKey: "userId" });
+UserTaskProgress.belongsTo(User, { foreignKey: "userId" });
+
+Task.hasMany(UserTaskProgress, { foreignKey: "taskId" });
+UserTaskProgress.belongsTo(Task, { foreignKey: "taskId" });
 
 Course.hasMany(Lecture, { foreignKey: 'courseId',
   as: 'lectures',
@@ -123,4 +142,5 @@ module.exports = {
   Tag,
   Category,
   UserTaskProgress,
+  UserLectureProgress,
 };

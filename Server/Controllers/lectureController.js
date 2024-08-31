@@ -1,6 +1,7 @@
-const { Lecture, Course, Task } = require("../Models/index");
+const { Lecture, Course, Task, UserTaskProgress, UserLectureProgress, UserCourseProgress } = require('../Models/index');
 const asyncHandler = require("express-async-handler");
 const ApiError = require("../utils/ApiError");
+const { Op } = require('sequelize');
 const PickExistVars = require("../utils/PickExistVars");
 
 exports.uploadLecture = asyncHandler(async (req, res, next) => {
@@ -142,4 +143,90 @@ exports.deleteLecture = asyncHandler(async (req, res, next) => {
   }
   await lecture.destroy();
   return res.status(200).json({ message: "lecture was deleted successfully" });
+});
+
+
+exports.markLectureAsAttended = asyncHandler(async (req, res, next) => {
+  const { lectureId } = req.params;
+  const userId = req.user ? req.user.id : null;
+  console.log('lecture ID:', lectureId);
+  console.log('user ID:', userId);
+  
+  if (!lectureId || !userId) {
+    return res.status(400).json({ message: "Lecture ID or User ID is missing" });
+  }
+
+  try {
+    const lecture = await Lecture.findByPk(lectureId);
+    if (!lecture) {
+      return next(new ApiError("No lecture was found with this ID", 404));
+    }
+    
+    const courseId = lecture.courseId;
+    const courseProgress = await UserCourseProgress.findOne({
+      where: { userId, courseId }
+    });
+    
+    console.log('course ID:', courseId);
+    if (!courseProgress) {
+      return next(new ApiError("User is not enrolled in the course", 403));
+    }
+    
+    let lectureProgress = await UserLectureProgress.findOne({
+      where: { userId, lectureId }
+    });
+
+    if (!lectureProgress) {
+      lectureProgress = await UserLectureProgress.create({
+        userId,
+        lectureId,
+        courseId,
+        progress: 1.0, 
+        attended: true,
+        completionDate: new Date(),
+      });
+    } else {
+      await lectureProgress.update({
+        attended: true,
+        progress: 1.0,
+        completionDate: new Date(),
+      });
+    }
+
+    const totalLectures = await Lecture.count({ where: { courseId } });
+    const attendedLectures = await UserLectureProgress.count({
+      where: { userId, courseId, attended: true }
+    });
+
+    const progressPercentage = (attendedLectures / totalLectures) * 100;
+
+    // Calculate task progress
+    const totalTasks = await Task.count({ where: { lectureId } });
+    const completedTasks = await UserTaskProgress.count({
+      where: {
+        userId,
+        taskId: {
+          [Op.in]: (await Task.findAll({ where: { lectureId } })).map(task => task.id)
+        },
+        is_finished: true
+      }
+    });
+    const tasksPercentage = totalTasks > 0 ? Math.floor(completedTasks / totalTasks) * 100 : 0;
+
+    await courseProgress.update({
+      completedLectures: attendedLectures,
+      totalLectures,
+      progress: progressPercentage
+    });
+
+    res.status(200).json({
+      lectureProgress,
+      progressPercentage,
+      tasksInLecture: totalTasks,
+      tasksPercentage
+    });
+  } catch (err) {
+    console.error("Error marking lecture as attended:", err); 
+    return next(new ApiError('Failed to mark lecture as attended', 500));
+  }
 });

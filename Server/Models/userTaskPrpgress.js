@@ -30,6 +30,14 @@ UserTaskProgress.init({
     allowNull: false,
     defaultValue: false,
    },
+   answer: {
+    type: DataTypes.TEXT,
+},
+    is_solve: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+   },
    completed_at: {
     type: DataTypes.DATE,
    },
