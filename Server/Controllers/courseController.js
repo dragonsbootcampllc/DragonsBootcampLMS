@@ -221,11 +221,9 @@ exports.deleteCourseById = asyncHandler(async (req, res, next) => {
 
 exports.getCourseDetails = asyncHandler(async (req, res, next) => {
   const { courseId } = req.params;
-  console.log("courseId", courseId);
   const userId = req.user ? req.user.id : null;
-  console.log("userId", userId);
+
   try {
-    // Fetch course details
     const course = await Course.findByPk(courseId, {
       include: [
         {
@@ -235,26 +233,111 @@ exports.getCourseDetails = asyncHandler(async (req, res, next) => {
             {
               model: Task,
               as: "tasks",
+              include: [
+                {
+                  model: UserTaskProgress,
+                  as: "userTaskProgresses",
+                  where: {
+                    userId,
+                  },
+                  required: false, // Ensures all tasks are returned even if there is no user progress
+                },
+              ],
+            },
+            {
+              model: UserLectureProgress,
+              as: "UserLectureProgresses",
+              where: {
+                userId,
+              },
+              required: false, // Ensures all lectures are returned even if there is no user progress
             },
           ],
         },
+        {
+          model: UserCourseProgress,
+          where: {
+            userId,
+          },
+          required: false,
+        }
       ],
     });
 
     if (!course) {
       return next(new ApiError("Course not found", 404));
     }
+    const usercourseprogress = await UserCourseProgress.findOne({
+      where: {
+        userId,
+        courseId,
+      },
+    });
 
+    const enrolled = usercourseprogress ? true : false;
+    // Calculate total lectures and tasks
     const totalLectures = course.lectures.length;
-    const totalTasks = course.lectures.reduce(
-      (acc, lecture) => acc + lecture.tasks.length,
-      0
-    );
+    const totalTasks = course.lectures.reduce((acc, lecture) => acc + lecture.tasks.length, 0);
 
-    let LecturePercentage = 0;
-    let tasksPercentage = 0;
+    // Process each lecture and task to include progress
+    const response = {
+      id: course.id,
+      name: course.name,
+      description: course.description,
+      educatorId: course.educatorId,
+      lecturesCount: totalLectures,
+      createdAt: course.createdAt,
+      updatedAt: course.updatedAt,
+      lectures: course.lectures.map((lecture) => ({
+        id: lecture.id,
+        startTime: lecture.startTime,
+        endTime: lecture.endTime,
+        type: lecture.type,
+        text: lecture.text,
+        recordedLink: lecture.recordedLink,
+        onlineLink: lecture.onlineLink,
+        order: lecture.order,
+        estimatedTime: lecture.estimatedTime,
+        // Conditionally include progress data
+        ...(enrolled ? {
+          attended: lecture.UserLectureProgresses.length > 0
+            ? lecture.UserLectureProgresses[0].attended
+            : false,
+          progress: lecture.UserLectureProgresses.length > 0
+            ? lecture.UserLectureProgresses[0].progress
+            : 0,
+          tasks: lecture.tasks.map((task) => ({
+            id: task.id,
+            type: task.type,
+            description: task.description,
+            text: task.text,
+            testcases: task.testcases,
+            options: task.options,
+            startTime: task.startTime,
+            endTime: task.endTime,
+            isFinished: task.userTaskProgresses.length > 0
+              ? task.userTaskProgresses[0].is_finished
+              : false,
+            completedAt: task.userTaskProgresses.length > 0
+              ? task.userTaskProgresses[0].completedAt
+              : null,
+          })),
+        } : {
+          tasks: lecture.tasks.map((task) => ({
+            id: task.id,
+            type: task.type,
+            description: task.description,
+            text: task.text,
+            testcases: task.testcases,
+            options: task.options,
+            startTime: task.startTime,
+            endTime: task.endTime,
+          })),
+        }),
+      })),
+    };
 
-    if (userId) {
+    if (enrolled) {
       const attendedLectures = await UserLectureProgress.count({
         where: { userId, courseId, attended: true },
       });
@@ -267,38 +350,20 @@ exports.getCourseDetails = asyncHandler(async (req, res, next) => {
               lecture.tasks.map((task) => task.id)
             ),
           },
-          finished: true,
+          is_finished: true,
         },
       });
 
-      LecturePercentage = totalLectures
-        ? Math.floor(attendedLectures / totalLectures) * 100
-        : 0;
-      tasksPercentage = totalTasks
-        ? Math.floor((completedTasks / totalTasks) * 100)
-        : 0;
+      response.progress = {
+        LecturePercentage: totalLectures
+          ? Math.floor((attendedLectures / totalLectures) * 100)
+          : 0,
+        tasksPercentage: totalTasks
+          ? Math.floor((completedTasks / totalTasks) * 100)
+          : 0,
+      };
     }
-
-    res.status(200).json({
-      courseDetails: {
-        id: course.id,
-        name: course.name,
-        description: course.description,
-        totalLectures,
-        totalTasks,
-      },
-      lectures: course.lectures.map((lecture) => ({
-        id: lecture.id,
-        tasks: lecture.tasks.map((task) => ({
-          id: task.id,
-          description: task.description,
-        })),
-      })),
-      progress: {
-        LecturePercentage,
-        tasksPercentage,
-      },
-    });
+    res.status(200).json(response);
   } catch (err) {
     console.error(err);
     return next(new ApiError("Failed to fetch course details", 500));
