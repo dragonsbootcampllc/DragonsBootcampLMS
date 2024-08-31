@@ -2,7 +2,6 @@ const {Task, UserTaskProgress} = require('../Models/index');
 const asyncHandler = require('express-async-handler');
 const {Lecture} = require('../Models/index');
 const ApiError = require('../utils/ApiError');
-const { UserTaskProgress } = require('../Models/index');
 const { Course, UserCourseProgress } = require('../Models/index');
 
 
