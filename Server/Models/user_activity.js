@@ -1,5 +1,6 @@
 const { Model, DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
+const { activitiesTypes } = require('../config/options');
 
 class UserActivity extends Model {}
 
@@ -16,12 +17,15 @@ UserActivity.init({
       key: 'id',
     },
     onDelete: 'CASCADE',
+    field: 'userid',
   },
   activityType: {
-    type: DataTypes.STRING,
+    type: DataTypes.ENUM(...activitiesTypes),
+    field: 'activity_type'
   },
   activityDetails: {
     type: DataTypes.JSONB,
+    field: 'activity_details'
   },
   timestamp: {
     type: DataTypes.DATE,

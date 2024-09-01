@@ -20,17 +20,24 @@ Course.init({
     educatorId: {
         type: DataTypes.INTEGER,
         allowNull: false,
+        references: {
+            model: 'users',
+            key: 'id',
+        },
+        field: 'educator_id',
     },
     lecturesCount: {
         type: DataTypes.INTEGER,
         defaultValue: 0,
         allowNull: false,
+        field: 'lectures_count',
     },
 }, {
     sequelize,
     modelName: 'Course',
-    tableName: 'courses'
+    tableName: 'courses',
+    timestamps: true,
+
 });
 
 module.exports = Course;
-

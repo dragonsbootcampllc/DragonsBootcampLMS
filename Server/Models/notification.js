@@ -15,20 +15,19 @@ Notification.init({
       model: 'users',
       key: 'id',
     },
+    field: 'user_id',
   },
   notificationType: {
     type: DataTypes.STRING,
+    field: 'notification_type',
   },
   notificationContent: {
     type: DataTypes.JSONB,
+    field: 'notification_content', 
   },
   read: {
     type: DataTypes.BOOLEAN,
     defaultValue: false,
-  },
-  createdAt: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW,
   },
 }, {
   sequelize,

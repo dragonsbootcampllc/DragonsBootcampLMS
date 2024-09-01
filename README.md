@@ -22,6 +22,49 @@ Routes -> `where we handle our app routes like the 'authRoutes' has login route 
 
 config -> `that where we have the configration for our database`
 
+Pre-Requisites:
+Before running the code, ensure that the PostgreSQL user has been created and configured with appropriate permissions. Execute the following commands in your terminal:
+
+Switch to the postgres user:
+```bash
+sudo -i -u postgres
+```
+
+Create a new PostgreSQL user (e.g., postgres):
+```bash
+createuser --interactive
+Enter the role name: postgres
+Is the new role a superuser? (n)
+Can the role create databases? (y)
+Can the role create more roles? (n)
+```
+
+Switch to the PostgreSQL command-line interface:
+```bash
+psql
+```
+
+Set the password for the postgres user:
+```sql
+ALTER USER postgres WITH PASSWORD 'the password in the .env file';
+```
+
+Grant all privileges on the target database to the postgres user:
+```sql
+GRANT ALL PRIVILEGES ON DATABASE learning_system TO postgres;
+```
+
+Exit the PostgreSQL CLI:
+```sql
+\q
+```
+
+Exit the postgres user session:
+```bash
+exit
+```
+
+Finally, run your server.
 
 ### you can use seeders to have a quick access to some default data in the database
 
