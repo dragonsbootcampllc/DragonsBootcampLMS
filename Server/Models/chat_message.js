@@ -9,6 +9,11 @@ ChatMessage.init({
     primaryKey: true,
     autoIncrement: true,
   },
+  chatId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    field: 'chat_id',
+  },
   senderId: {
     type: DataTypes.INTEGER,
     references: {
@@ -29,10 +34,17 @@ ChatMessage.init({
     type: DataTypes.TEXT,
     allowNull: false,
   },
+  createdat: {
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW,
+    field: 'createdat',
+  },
+
 }, {
   sequelize,
   modelName: 'ChatMessage',
   tableName: 'chat_messages',
+  timestamps: false,  // Disable automatic `createdAt` and `updatedAt` fields if not needed
 });
 
 module.exports = ChatMessage;

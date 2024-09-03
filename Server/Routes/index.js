@@ -7,6 +7,7 @@ const lectureRoutes = require('./lectureRoutes');
 const courseRoutes = require('./courseRoutes');
 const tagRoutes = require('./tagRoutes');
 const categoryRoutes = require('./categoryRoutes');
+const chatRoutes = require('./chatRouters');
 
 router.use("/auth",authRoutes);
 router.use("/user",userRoutes);
@@ -16,5 +17,6 @@ router.use("/lectures", lectureRoutes)
 router.use("/courses", courseRoutes);
 router.use("/tags", tagRoutes);
 router.use("/categories", categoryRoutes);
+router.use('/chat', chatRoutes);
 
 module.exports = router;
