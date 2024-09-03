@@ -11,8 +11,7 @@ module.exports = function(server) {
 
   io.on('connection', (socket) => {
     console.log('A user connected:', socket.id);
-    const userId = socket.handshake.query.user_id;
-    console.log('user_id',userId);
+    console.log(socket.user);
 
     // Initialize chat socket events
     require('./sockets/chatSocket')(io, socket);
