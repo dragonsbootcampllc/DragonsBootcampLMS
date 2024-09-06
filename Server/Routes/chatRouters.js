@@ -39,6 +39,12 @@
  *                   content:
  *                     type: string
  *                     description: The content of the message.
+ *                   linkUrl:
+ *                     type: string
+ *                     description: A URL link associated with the message (if any).
+ *                   imageUrl:
+ *                     type: string
+ *                     description: A URL to an image associated with the message (if any).
  *                   createdAt:
  *                     type: string
  *                     format: date-time
@@ -53,9 +59,7 @@
  *         description: Not Found - Chat ID not found or no messages found.
  *       '500':
  *         description: Internal Server Error - An error occurred while fetching messages.
- * 
  */
-
 
 const express = require('express');
 const router = express.Router();
