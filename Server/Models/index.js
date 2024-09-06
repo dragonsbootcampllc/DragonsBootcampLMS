@@ -13,6 +13,7 @@ const BookResource = require("./book_resource");
 const DiscussionThread = require("./discussion_thread");
 const DiscussionPost = require("./discussion_post");
 const ChatMessage = require("./chat_message");
+const Chat = require("./chat");
 const Notification = require("./notification");
 const Lecture = require('./lecture');
 const Task = require('./task');
@@ -111,6 +112,11 @@ User.hasMany(ChatMessage, { foreignKey: "receiverId", as: "ReceivedMessages" });
 ChatMessage.belongsTo(User, { foreignKey: "senderId", as: "Sender" });
 ChatMessage.belongsTo(User, { foreignKey: "receiverId", as: "Receiver" });
 
+User.hasMany(Chat, { foreignKey: "senderId", as: "SentChat" });
+User.hasMany(Chat, { foreignKey: "receiverId", as: "ReceivedChat" });
+Chat.belongsTo(User, { foreignKey: "senderId", as: "ChatSender" });
+Chat.belongsTo(User, { foreignKey: "receiverId", as: "ChatReceiver" });
+
 User.hasMany(Notification, { foreignKey: "userId" });
 Notification.belongsTo(User, { foreignKey: "userId" });
 
@@ -135,6 +141,7 @@ module.exports = {
   DiscussionThread,
   DiscussionPost,
   ChatMessage,
+  Chat,
   Notification,
   Lecture,
   Task,
