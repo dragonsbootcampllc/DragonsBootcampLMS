@@ -9,19 +9,27 @@ const protect = require('../middlewares/protect');
  *   - name: Chat
  *     description: Operations related to chat messages
  * 
- * /api/chat/{chatId}/messages:
+ * /api/chat/messages:
  *   get:
  *     summary: Retrieve messages for a specific chat
  *     description: Fetch all messages associated with a specific chat ID, ordered by creation date.
  *     tags:
  *       - Chat
  *     parameters:
- *       - name: chatId
- *         in: path
- *         description: The ID of the chat for which messages are being fetched.
- *         required: true
+ *       - name: page
+ *         in: query
+ *         description: The page number for pagination.
+ *         required: false
  *         schema:
- *           type: string
+ *           type: integer
+ *           default: 1
+ *       - name: limit
+ *         in: query
+ *         description: The number of messages per page.
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           default: 10
  *     responses:
  *       '200':
  *         description: Successfully retrieved chat messages
@@ -41,7 +49,10 @@ const protect = require('../middlewares/protect');
  *                   senderId:
  *                     type: string
  *                     description: The ID of the user who sent the message.
- *                   content:
+ *                   receiverId:
+ *                     type: string
+ *                     description: The ID of the user who received the message.
+ *                   message:
  *                     type: string
  *                     description: The content of the message.
  *                   linkUrl:
@@ -65,6 +76,7 @@ const protect = require('../middlewares/protect');
  *       '500':
  *         description: Internal Server Error - An error occurred while fetching messages.
  */
+
 
 
 router.get('/messages',protect, getChatMessages);
