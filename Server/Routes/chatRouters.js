@@ -1,3 +1,8 @@
+const express = require('express');
+const router = express.Router();
+const { getChatMessages } = require('../Controllers/chatController');
+const protect = require('../middlewares/protect');
+
 /**
  * @swagger
  * tags:
@@ -61,10 +66,7 @@
  *         description: Internal Server Error - An error occurred while fetching messages.
  */
 
-const express = require('express');
-const router = express.Router();
-const { getChatMessages } = require('../Controllers/chatController');
 
-router.get('/:chatId/messages', getChatMessages);
+router.get('/messages',protect, getChatMessages);
 
 module.exports = router;

@@ -3,24 +3,53 @@ const asyncHandler = require('express-async-handler');
 const ApiError = require('../utils/ApiError');
 
 exports.getChatMessages = asyncHandler(async (req, res, next) => {
-    const { chatId } = req.params;
-
-    if (!chatId) {
-        return next(new ApiError('Chat ID is required', 400));
+    if (!req.user || !req.user.id) {
+        return next(new ApiError('User not authenticated', 401));
     }
 
-    const chatExists = await Chat.findOne({
-        where: { chatId }
-    });
+    const userId = req.user.id;  
+    const limit = parseInt(req.query.limit) || 10;  
+    const page = parseInt(req.query.page) || 1;    
+    const skip = (page - 1) * limit;
 
-    if (!chatExists) {
-        return next(new ApiError('Chat ID not found', 404));
-    }
-
-    const messages = await Chat.findAll({
-        where: { chatId },
-        order: [['createdat', 'ASC']], 
-    });
     
-    res.json(messages)
+    const distinctReceivers = await Chat.findAll({
+        attributes: ['receiverId'],
+        where: {
+            senderId: userId,
+        },
+        group: ['receiverId'],
+        order: [['receiverId', 'ASC']]
+    });
+
+    if (!distinctReceivers || distinctReceivers.length === 0) {
+        return next(new ApiError('No messages found for this sender', 404));
+    }
+
+    
+    const chats = await Promise.all(distinctReceivers.map(async (receiver) => {
+        const receiverId = receiver.receiverId;
+        const messages = await Chat.findAll({
+            where: {
+                senderId: userId,
+                receiverId: receiverId
+            },
+            order: [['createdat', 'ASC']],  
+            limit,
+            offset: skip
+        });
+        return {
+            receiverId,
+            messages: messages.map((msg) => ({
+                id: msg.id,
+                message: msg.message,
+                imageUrl: msg.imageUrl,
+                linkUrl: msg.linkUrl,
+                createdAt: msg.createdAt
+            }))
+        };
+    }));
+
+    res.json({ chats });
 });
+

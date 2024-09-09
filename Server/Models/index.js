@@ -107,13 +107,11 @@ DiscussionPost.belongsTo(DiscussionThread, { foreignKey: "threadId" });
 User.hasMany(DiscussionPost, { foreignKey: "userId" });
 DiscussionPost.belongsTo(User, { foreignKey: "userId" });
 
-User.hasMany(ChatMessage, { foreignKey: "senderId", as: "SentMessages" });
-User.hasMany(ChatMessage, { foreignKey: "receiverId", as: "ReceivedMessages" });
-ChatMessage.belongsTo(User, { foreignKey: "senderId", as: "Sender" });
-ChatMessage.belongsTo(User, { foreignKey: "receiverId", as: "Receiver" });
+Chat.hasMany(ChatMessage, { foreignKey: 'chatId', as: 'Messages' });
+ChatMessage.belongsTo(Chat, { foreignKey: 'chatId', as: 'Chat' });
 
-User.hasMany(Chat, { foreignKey: "senderId", as: "SentChat" });
 User.hasMany(Chat, { foreignKey: "receiverId", as: "ReceivedChat" });
+User.hasMany(Chat, { foreignKey: "senderId", as: "SentChat" });
 Chat.belongsTo(User, { foreignKey: "senderId", as: "ChatSender" });
 Chat.belongsTo(User, { foreignKey: "receiverId", as: "ChatReceiver" });
 

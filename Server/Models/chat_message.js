@@ -9,25 +9,17 @@ ChatMessage.init({
     primaryKey: true,
     autoIncrement: true,
   },
-  senderId: {
-    type: DataTypes.INTEGER,
-    references: {
-      model: 'users',
-      key: 'id',
-    },
-    field: 'sender_id',
-  },
-  receiverId: {
-    type: DataTypes.INTEGER,
-    references: {
-      model: 'users',
-      key: 'id',
-    },
-    field: 'receiver_id',
-  },
   message: {
     type: DataTypes.TEXT,
     allowNull: false,
+  },
+  chatId: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: 'chats',
+      key: 'id',
+    },
+    field: 'chat_id',
   },
 }, {
   sequelize,

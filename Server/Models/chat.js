@@ -10,11 +10,6 @@ id: {
     autoIncrement: true,
     field: 'id',
 },
-chatId: {
-    type: DataTypes.INTEGER,  
-    allowNull: false,
-    field: 'chat_id',
-},
 senderId: {
     type: DataTypes.INTEGER,
     references: {
@@ -49,7 +44,7 @@ linkUrl: {
 }, {
 sequelize,
 modelName: 'Chat',
-tableName: 'chat',
+tableName: 'chats',
 });
 
 module.exports = Chat;
