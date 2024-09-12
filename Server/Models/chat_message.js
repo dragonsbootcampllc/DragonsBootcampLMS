@@ -13,14 +13,32 @@ ChatMessage.init({
     type: DataTypes.TEXT,
     allowNull: false,
   },
-  chatId: {
+  senderId: {
     type: DataTypes.INTEGER,
     references: {
-      model: 'chats',
-      key: 'id',
+    model: 'users',
+    key: 'id',
+    allowNull: false,
     },
-    field: 'chat_id',
+    field: 'sender_id',
+},
+receiverId: {
+    type: DataTypes.INTEGER,
+    references: {
+    model: 'users',
+    key: 'id',
+    allowNull: false,
+    },
+    field: 'receiver_id',
+},
+chatId: {
+  type: DataTypes.INTEGER,
+  references: {
+    model: 'chats',
+    key: 'id',
   },
+  field: 'chat_id',
+},
 }, {
   sequelize,
   modelName: 'ChatMessage',

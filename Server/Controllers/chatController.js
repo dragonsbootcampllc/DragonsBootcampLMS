@@ -1,6 +1,8 @@
-const { Chat } = require('../Models/index');
+const { Chat, ChatMessage, User } = require('../Models/index');
 const asyncHandler = require('express-async-handler');
 const ApiError = require('../utils/ApiError');
+const { Op } = require('sequelize');
+
 
 exports.getChatMessages = asyncHandler(async (req, res, next) => {
     if (!req.user || !req.user.id) {
@@ -12,44 +14,50 @@ exports.getChatMessages = asyncHandler(async (req, res, next) => {
     const page = parseInt(req.query.page) || 1;    
     const skip = (page - 1) * limit;
 
-    
-    const distinctReceivers = await Chat.findAll({
-        attributes: ['receiverId'],
-        where: {
-            senderId: userId,
-        },
-        group: ['receiverId'],
-        order: [['receiverId', 'ASC']]
+    const chats = await Chat.findAll({
+        attributes: ['id'],
+        include: [
+            {
+                model: User,
+                as: 'participants',
+                where: { id: userId },
+                attributes: []
+            }
+        ]
     });
 
-    if (!distinctReceivers || distinctReceivers.length === 0) {
-        return next(new ApiError('No messages found for this sender', 404));
+    if (!chats) {
+        return next(new ApiError('No chats found for this user', 404));
     }
 
-    
-    const chats = await Promise.all(distinctReceivers.map(async (receiver) => {
-        const receiverId = receiver.receiverId;
-        const messages = await Chat.findAll({
+    const chatIds = chats.map(chat => chat.id);
+
+    const chatMessages = await Promise.all(chatIds.map(async (chatId) => {
+        const messages = await ChatMessage.findAll({
             where: {
-                senderId: userId,
-                receiverId: receiverId
+                chatId,
+                [Op.or]: [
+                    { senderId: userId },  
+                    { receiverId: userId } 
+                ]
             },
-            order: [['createdat', 'ASC']],  
+            order: [['createdat', 'ASC']],
             limit,
             offset: skip
         });
+
         return {
-            receiverId,
+            chatId,
             messages: messages.map((msg) => ({
                 id: msg.id,
                 message: msg.message,
-                imageUrl: msg.imageUrl,
-                linkUrl: msg.linkUrl,
+                senderId: msg.senderId,
+                receiverId: msg.receiverId,
+                isSender: msg.senderId === userId, 
                 createdAt: msg.createdAt
             }))
         };
     }));
 
-    res.json({ chats });
+    res.json({ chatMessages });
 });
-
