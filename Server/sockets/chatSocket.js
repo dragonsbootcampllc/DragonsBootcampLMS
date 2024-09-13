@@ -1,5 +1,4 @@
 const chatService = require("../services/chatService");
-const {createGroup, createGroupMember} = require("../Services/groupService");
 const {User} = require("../Models/index");
 const {ChatMessage} = require("../Models/index");
 
@@ -54,28 +53,4 @@ module.exports = (io, socket) => {
       console.error(err.message);
     }
   });
-
-  socket.on("sendGroupMessage", async (messageData) => {
-    // Persist the message and emit it to the chat room
-    const message = await chatService.saveMessage(messageData);
-    io.to(messageData.groupId).emit("newGroupMessage", message);
-  });
-
-
-  socket.on("createGroup", async (room) => {
-    try {
-      if (user.role === "educator") {
-        const group = await createGroup(room.name);
-        const member = await createGroupMember(group.dataValues.id, user.id, "admin");
-        socket.join(room);
-        console.log("group created")
-        io.to(room).emit("createGroup", {"message": "group created"});
-      } else {
-        io.emit({"message": "only educators can create groups"})
-      }
-    } catch (err) {
-      console.log(err);
-      io.emit("error", { message: err.message});
-    }
-  });
-};
+}
