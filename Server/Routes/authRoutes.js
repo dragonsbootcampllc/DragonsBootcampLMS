@@ -120,7 +120,7 @@ const router = require("express").Router();
  */
 
 router.post("/signup", SignUp , sendOTP);
-router.post("/login", loginValidator, login, sendOTP);
+router.post("/login", loginValidator, login);
 router.post("/verfiyOtp", verifyOTP);
 router.post("/forgotpassword", forgotPassword);
 router.post("/resetpassword", resetPassword);
