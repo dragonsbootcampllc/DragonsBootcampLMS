@@ -201,7 +201,7 @@ const router = require("express").Router();
  *         description: Internal server error
  */
 
-router.get("/",protect,verifyRole(['admin']), getAllUsers);
+router.get("/",protect,verifyRole(['educator']), getAllUsers);
 
 //user preferences routes
 router.get("/preferences", protect, getpreferneces);

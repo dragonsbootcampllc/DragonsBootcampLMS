@@ -120,6 +120,7 @@ UserTaskProgress.belongsTo(User, { foreignKey: "userId" });
 Task.hasMany(UserTaskProgress, { foreignKey: "taskId" });
 UserTaskProgress.belongsTo(Task, { foreignKey: "taskId" });
 
+
 module.exports = {
   sequelize,
   Sequelize,

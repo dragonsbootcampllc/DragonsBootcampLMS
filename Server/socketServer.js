@@ -1,4 +1,7 @@
 const { Server } = require("socket.io");
+const { User } = require("./Models/index");
+const {ChatMessage} = require("./Models/index")
+const { where } = require("sequelize");
 // const socketUtils = require('./utils/socketUtils');
 
 module.exports = function(server) {
@@ -9,9 +12,32 @@ module.exports = function(server) {
     }
   });
 
-  io.on('connection', (socket) => {
+  io.on('connection', async (socket) => {
     console.log('A user connected:', socket.id);
-    console.log(socket.user);
+    const user = socket.user;
+    try {
+      //switch user status to online
+      await User.update({socketId: socket.id, online: true}, {where: { id: user.id }});
+      user.socketId = socket.id;
+      socket.emit("update user status", {"status": "online", user})
+
+      //send the pending messages from when the user was offline
+      const pending_messages = await ChatMessage.findAll({
+        where: {
+          receiverId: user.id,
+          status: "pending",
+        }
+      });
+
+      pending_messages.forEach(async message => {
+        await ChatMessage.update({status: "deliverd"}, {where: {id: message.dataValues.id, status: "pending"} });
+        socket.emit("receive message", {message});
+      });
+    } catch (err) {
+      console.log(err.message)
+      socket.emit("update user status", {"message": err.message});
+    }
+    console.log(user);
 
     // Initialize chat socket events
     require('./sockets/chatSocket')(io, socket);
@@ -19,7 +45,13 @@ module.exports = function(server) {
     // Initialize notification socket events
     require('./sockets/notificationSocket')(io, socket);
 
-    socket.on('disconnect', () => {
+    socket.on('disconnect', async () => {
+      try {
+        await User.update({ socketId: null, online: false }, { where: { id: user.id } })
+        socket.emit("update user status", {"status": "offline", user});
+      } catch (err) {
+        socket.emit("update user status", {"messsage": err.message});
+      }
       console.log('User disconnected:', socket.id);
     });
   });

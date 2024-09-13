@@ -29,6 +29,13 @@ ChatMessage.init({
     type: DataTypes.TEXT,
     allowNull: false,
   },
+  status: {
+    type: DataTypes.ENUM("read", "deliverd", "pending"),
+    defaultValue: "deliverd"
+  },
+  chatId: {
+    type: DataTypes.TEXT,
+  }
 }, {
   sequelize,
   modelName: 'ChatMessage',

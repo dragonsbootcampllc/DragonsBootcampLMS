@@ -79,6 +79,13 @@ User.init({
     type: DataTypes.DATE,
     field: 'password_reset_expires'
   },
+  online: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
+  socketId: {
+    type: DataTypes.TEXT,
+  },
 }, {
   hooks:{
     beforeSave: async (user, options) => {
