@@ -6,11 +6,8 @@ const {ChatMessage} = require("../Models/index");
 
 module.exports = (io, socket) => {
   const user = socket.user;
-  socket.on("joinChat", (chatId) => {
-    socket.join(chatId);
-  });
 
-  socket.on("joinGroup", async (data) => { 
+  socket.on("joinRoom", async (data) => { 
     const {groupId} = data;
     socket.join(groupId);
     try{
