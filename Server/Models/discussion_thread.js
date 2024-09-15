@@ -21,6 +21,15 @@ DiscussionThread.init({
     },
     field: 'created_by',
   },
+  linkedToId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  linkedToType: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+
 }, {
   sequelize,
   modelName: 'DiscussionThread',

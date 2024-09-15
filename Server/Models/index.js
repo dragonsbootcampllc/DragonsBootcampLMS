@@ -27,6 +27,17 @@ const UserLectureProgress = require("./userlectureprogress");
 
 
 // Define associations
+DiscussionThread.belongsTo(Lecture, {foreignKey: 'linkedToId',constraints: false,
+  scope: {
+    linkedToType: 'Lecture',
+  },
+});
+
+DiscussionThread.belongsTo(Course, {foreignKey: 'linkedToId',constraints: false,
+  scope: {
+    linkedToType: 'Course',
+  },
+});
 User.hasOne(UserCourseProgress,{foreignKey:"userId"})
 UserCourseProgress.belongsTo(User,{foreignKey:"userId"})
 
