@@ -36,7 +36,7 @@ module.exports = (io, socket) => {
           message
         });
         socket.broadcast.to(roomId).emit("receive message", { chat });
-        socket.emit("message sent", {"status": "deliverd"})
+        socket.emit("message sent", { chat })
       } else {
         const chat = await chatService.saveMessage({
           senderId, 
@@ -46,7 +46,7 @@ module.exports = (io, socket) => {
           status: "pending"
         });
         socket.broadcast.to(roomId).emit("receive message", { chat }); 
-        socket.emit("message sent", {"status": "pending"})
+        socket.emit("message sent", { chat })
       }
     } catch (err) {
       socket.emit("message sent", err.message);
