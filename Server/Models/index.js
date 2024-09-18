@@ -109,11 +109,10 @@ DiscussionPost.belongsTo(User, { foreignKey: "userId" });
 
 Chat.hasMany(ChatMessage, { foreignKey: 'chatId', as: 'Messages' });
 ChatMessage.belongsTo(Chat, { foreignKey: 'chatId', as: 'Chat' });
-
 User.belongsToMany(Chat, { through: 'participant', as: 'chats', foreignKey: 'user_id'});
-
 Chat.belongsToMany(User, { through: 'participant', as: 'participants', foreignKey: 'chat_id'});
 
+User.hasMany(Notification, { foreignKey: "userId" });
 Notification.belongsTo(User, { foreignKey: "userId" });
 
 User.hasMany(UserTaskProgress, { foreignKey: "userId" });

@@ -41,7 +41,7 @@ exports.getChatMessages = asyncHandler(async (req, res, next) => {
                     { receiverId: userId } 
                 ]
             },
-            order: [['createdat', 'ASC']],
+            order: [['createdat', 'DESC']],
             limit,
             offset: skip
         });

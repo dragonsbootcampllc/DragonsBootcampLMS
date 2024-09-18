@@ -10,12 +10,6 @@ Chat.init({
     autoIncrement: true,
     field: 'id',
   },
-  chatId: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    field: 'chat_id',
-  },
-
 }, {
   sequelize,
   modelName: 'Chat',
