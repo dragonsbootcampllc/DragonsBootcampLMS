@@ -1,4 +1,4 @@
-const chatService = require("../services/chatService");
+const chatService = require("../Services/chatService");
 const {User} = require("../Models/index");
 const {ChatMessage} = require("../Models/index");
 
@@ -6,14 +6,18 @@ const {ChatMessage} = require("../Models/index");
 module.exports = (io, socket) => {
   const user = socket.user;
 
+  /**
+   * joinRoom - event to handle joinig a chat
+   * roomId: id of the chat
+   */
   socket.on("joinRoom", async (data) => { 
-    const {groupId} = data;
-    socket.join(groupId);
+    const {roomId} = data;
+    socket.join(roomId);
     try{
-      const messages = await ChatMessage.findAll({where: {chatId: groupId, receiverId: user.id, status: "deliverd"}});
+      const messages = await ChatMessage.findAll({where: {chatId: roomId, receiverId: user.id, status: "deliverd"}});
       messages.forEach(async mes => {
         await ChatMessage.update({status: "read"}, {where: {id: mes.dataValues.id, status: "deliverd"} });
-        io.to(groupId).emit("message read", {mes})
+        io.to(roomId).emit("message read", {mes})
       });
     } catch (err) {
       socket.emit("message read", err.message)
@@ -22,35 +26,20 @@ module.exports = (io, socket) => {
 
   });
 
+  /** 
+   * private message - event to handle sending and receiving the messages
+   * data: objects that contains the following:
+   * senderId: the sender id
+   * receiverId: the receiver id
+   * roomId: the id of the room of the chat
+   * message: the content of the message
+  */
   socket.on("private message", async (data) => {
-    const {senderId, receiverId, roomId, message} = data;
-
-    try {
-      const receiver = User.findByPk(receiverId);
-      if (receiver && receiver.socketId) {
-        const chatId = roomId;
-        const chat = await chatService.saveMessage({
-          senderId, 
-          receiverId, 
-          chatId, 
-          message
-        });
-        socket.broadcast.to(roomId).emit("receive message", { chat });
-        socket.emit("message sent", { chat })
-      } else {
-        const chat = await chatService.saveMessage({
-          senderId, 
-          receiverId, 
-          chatId: roomId,
-          message, 
-          status: "pending"
-        });
-        socket.broadcast.to(roomId).emit("receive message", { chat }); 
-        socket.emit("message sent", { chat })
-      }
-    } catch (err) {
-      socket.emit("message sent", err.message);
-      console.error(err.message);
+    const {senderId} = data;
+    if (senderId !== user.id) {
+      socket.emit("message sent", "unauthorized")
+    } else {
+      chatService.privatemessaging(io, socket, data);
     }
   });
 }

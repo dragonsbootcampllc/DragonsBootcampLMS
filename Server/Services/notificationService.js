@@ -1,4 +1,4 @@
-
+const { Notification } = require("../Models/index");
 
 exports.createNotification = async (notificationData) => {
     try {

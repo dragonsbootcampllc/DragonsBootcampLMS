@@ -9,33 +9,40 @@ ChatMessage.init({
     primaryKey: true,
     autoIncrement: true,
   },
-  senderId: {
-    type: DataTypes.INTEGER,
-    references: {
-      model: 'users',
-      key: 'id',
-    },
-    field: 'sender_id',
-  },
-  receiverId: {
-    type: DataTypes.INTEGER,
-    references: {
-      model: 'users',
-      key: 'id',
-    },
-    field: 'receiver_id',
-  },
   message: {
     type: DataTypes.TEXT,
     allowNull: false,
   },
-  status: {
-    type: DataTypes.ENUM("read", "deliverd", "pending"),
-    defaultValue: "deliverd"
+  senderId: {
+    type: DataTypes.INTEGER,
+    references: {
+    model: 'users',
+    key: 'id',
+    allowNull: false,
+    },
+    field: 'sender_id',
+},
+receiverId: {
+    type: DataTypes.INTEGER,
+    references: {
+    model: 'users',
+    key: 'id',
+    allowNull: false,
+    },
+    field: 'receiver_id',
+},
+chatId: {
+  type: DataTypes.INTEGER,
+  references: {
+    model: 'chats',
+    key: 'id',
   },
-  chatId: {
-    type: DataTypes.TEXT,
-  }
+  field: 'chat_id',
+},
+status: {
+  type: DataTypes.ENUM("read", "deliverd", "pending"),
+  defaultValue: "deliverd"
+},
 }, {
   sequelize,
   modelName: 'ChatMessage',
