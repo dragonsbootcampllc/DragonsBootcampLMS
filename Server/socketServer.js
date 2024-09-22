@@ -14,9 +14,12 @@ module.exports = function(server) {
     const userId = socket.handshake.query.user_id;
     console.log('user_id',userId);
 
-    // Initialize chat socket events
+    // Initialize chat socket events  
     require('./sockets/chatSocket')(io, socket);
-
+    
+    // Initialize discussion socket events
+    require('./sockets/discussionSocket')(io, socket);
+    
     // Initialize notification socket events
     require('./sockets/notificationSocket')(io, socket);
 

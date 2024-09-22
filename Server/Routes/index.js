@@ -7,7 +7,9 @@ const lectureRoutes = require('./lectureRoutes');
 const courseRoutes = require('./courseRoutes');
 const tagRoutes = require('./tagRoutes');
 const categoryRoutes = require('./categoryRoutes');
+const discussionRoutes = require('./discussionRoutes');
 
+router.use("/discussion", discussionRoutes);
 router.use("/auth",authRoutes);
 router.use("/user",userRoutes);
 router.use("/tasks", taskRoutes);
