@@ -24,6 +24,5 @@ module.exports = (io, socket) => {
         const newMessage = await discussionService.savePost(messageData);
 
         io.to(`thread_${threadId}`).emit("newMessageInThread", newMessage);
-        io.emit("reciveMessage", newMessage);
     });
 };
