@@ -1,6 +1,5 @@
-const chatService = require("../Services/chatService");
-const {User} = require("../Models/index");
-const {ChatMessage} = require("../Models/index");
+const {readMessage, privatemessaging} = require("../Services/chatService");
+const {Chat} = require("../Models/index");
 
 
 module.exports = (io, socket) => {
@@ -10,20 +9,34 @@ module.exports = (io, socket) => {
    * joinRoom - event to handle joinig a chat
    * roomId: id of the chat
    */
-  socket.on("joinRoom", async (data) => { 
-    const {roomId} = data;
-    socket.join(roomId);
-    try{
-      const messages = await ChatMessage.findAll({where: {chatId: roomId, receiverId: user.id, status: "deliverd"}});
-      messages.forEach(async mes => {
-        await ChatMessage.update({status: "read"}, {where: {id: mes.dataValues.id, status: "deliverd"} });
-        io.to(roomId).emit("message read", {mes})
-      });
-    } catch (err) {
-      socket.emit("message read", err.message)
-      console.log(err.message)
-    }
 
+  socket.on("joinRoom", async (data) => {
+    const { roomId } = data;
+    try {
+      let chat = await Chat.findByPk(roomId);
+      if (!chat) {
+        socket.emit("join room", "room does not exist");
+        return;
+      }
+      const participants = await chat.getParticipants();
+      const isParticipant = participants.some(participant => (participant.id === user.id));
+      
+      if (isParticipant) {
+        socket.join(roomId);
+        socket.emit("join room", "joined successfully");
+      } else {
+        socket.emit("join room", "not authorized");
+      }
+      
+    } catch (error) {
+      socket.emit("join room", error.message);
+    }
+  });
+  
+
+  socket.on("message read", async (data) => { 
+    const {roomId} = data;
+    await readMessage(io, socket, user.id, roomId);
   });
 
   /** 
@@ -39,7 +52,7 @@ module.exports = (io, socket) => {
     if (senderId !== user.id) {
       socket.emit("message sent", "unauthorized")
     } else {
-      chatService.privatemessaging(io, socket, data);
+      await privatemessaging(io, socket, data);
     }
   });
 }
