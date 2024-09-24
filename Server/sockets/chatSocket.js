@@ -1,6 +1,28 @@
 const {readMessage, privatemessaging} = require("../Services/chatService");
 const {Chat} = require("../Models/index");
 
+/**
+ * update message status: Emit to update the message status to "read" for all participants in the room.
+ * @param {String} roomId - The ID of the chat room where the message was read.
+ * @param {Object} mes - The message that was updated to "read"(senderId, receiverId, chatId, message, status).
+ */
+
+
+/**
+ * receive message: Broadcast a message to the chat room to notify all participants about a new message.
+ * @param {Object} chat - The chat object containing message details(senderId, receiverId, chatId, message, status).
+ */
+
+/**
+ * message sent: Emit to the sender to confirm that the message was sent successfully.
+ * @param {Object} chat - The chat object containing message details(senderId, receiverId, chatId, message, status).
+ */
+
+/**
+ * new chat: Emit to the recipient to notify them about the creation of a new chat.
+ * @param {String} chatId - The ID of the new chat.
+ * @param {Object} chat - The chat object containing initial message details(senderId, receiverId, chatId, message, status).
+ */
 
 module.exports = (io, socket) => {
   const user = socket.user;

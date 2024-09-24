@@ -2,10 +2,29 @@ const { User, Chat, ChatMessage } = require("../Models/index");
 const sequelize = require("../config/database");
 
 /**
- * saveMessage - handle saving the chat, chat messages, and participants
- * @param {Object} data 
- * @returns {Object}
+ * update message status: Emit to update the message status to "read" for all participants in the room.
+ * @param {String} roomId - The ID of the chat room where the message was read.
+ * @param {Object} mes - The message that was updated to "read"(senderId, receiverId, chatId, message, status).
  */
+
+
+/**
+ * receive message: Broadcast a message to the chat room to notify all participants about a new message.
+ * @param {Object} chat - The chat object containing message details(senderId, receiverId, chatId, message, status).
+ */
+
+/**
+ * message sent: Emit to the sender to confirm that the message was sent successfully.
+ * @param {Object} chat - The chat object containing message details(senderId, receiverId, chatId, message, status).
+ */
+
+/**
+ * new chat: Emit to the recipient to notify them about the creation of a new chat.
+ * @param {String} chatId - The ID of the new chat.
+ * @param {Object} chat - The chat object containing initial message details(senderId, receiverId, chatId, message, status).
+ */
+
+
 const saveMessage = async (data) => {
   const { senderId, receiver, exists} = data;
   const transaction = await sequelize.transaction(); // Transaction for safety
@@ -26,7 +45,8 @@ const saveMessage = async (data) => {
         senderId,
         receiverId: receiver.id,
         chatId: newChat.id,
-        message: data.message
+        message: data.message,
+        status: data.status
     },
     { transaction });
     await transaction.commit();
@@ -114,7 +134,8 @@ const privatemessaging = async (io, socket, data) => {
         senderId,
         receiverId,
         chatId,
-        message
+        message,
+        status: "deliverd"
       });
 
       if (exists) {
@@ -123,8 +144,9 @@ const privatemessaging = async (io, socket, data) => {
         socket.broadcast.to(chat.chatId).emit("receive message", { chat });
         socket.emit("message sent", { chat });
       } else {
-        socket.to(receiver.socketId).emit("new chat", { chatId: chat.chatId });
-        socket.to(chat.chatId).emit("receive message", { chat });
+        socket.join(chat.chatId);
+        socket.to(receiver.socketId).emit("new chat", { chatId: chat.chatId, chat });
+        // socket.to(chat.chatId).emit("receive message", { chat });
         socket.emit("message sent", { chat });
       }
     } else {
