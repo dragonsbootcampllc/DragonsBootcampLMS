@@ -7,23 +7,29 @@ const sequelize = require("../config/database");
  * @returns {Object}
  */
 const saveMessage = async (data) => {
-  const { senderId, chatId, receiver, exists} = data;
+  const { senderId, receiver, exists} = data;
   const transaction = await sequelize.transaction(); // Transaction for safety
+  const sender = await User.findByPk(senderId, { transaction });
+
+  if (!sender || !receiver) {
+    throw new Error('Invalid sender or receiver');
+  }
 
   try {
     let newChat = exists;
     if (!newChat) {
       newChat = await Chat.create({}, { transaction });
       data.chatId = newChat.id;
+      await newChat.addParticipants([sender, receiver], { transaction });
     }
 
-    const sender = await User.findByPk(senderId, { transaction });
-    if (!sender || !receiver) {
-      throw new Error('Invalid sender or receiver');
-    }
-
-    await newChat.addParticipants([sender, receiver], { transaction });
-    const newMessage = await ChatMessage.create(data, { transaction });
+    const newMessage = await ChatMessage.create({
+        senderId,
+        receiverId: receiver.id,
+        chatId: newChat.id,
+        message: data.message
+    },
+    { transaction });
     await transaction.commit();
     return newMessage;
   } catch (error) {
@@ -77,12 +83,28 @@ const privatemessaging = async (io, socket, data) => {
      * @param {Integer} chatId 
      * @returns {Object}
      */
-    const chatexists = async (chatId) => {
-      const chat = await Chat.findByPk(chatId);
-      return chat ? chat : null;
+    const chatexists = async (chatId, receiverId, senderId) => {
+
+        try {
+            const chat = await Chat.findByPk(chatId);
+            if (!chat) {
+                return null;
+            }
+            const participants = await chat.getParticipants();
+            const areBothParticipants = [senderId, receiverId].every(id => 
+                participants.some(participant => participant.id === id)
+            );
+            if (areBothParticipants) {
+                return chat;
+            } else {
+                throw new Error("chat id is wrong");
+            }
+        } catch (err) {
+            throw new Error(err)
+        }
     };
 
-    const exists = await chatexists(roomId);
+    const exists = await chatexists(roomId, senderId, receiverId);
     exports.roomexists = exists;
 
     if (receiver && receiver.socketId) {
@@ -120,7 +142,6 @@ const privatemessaging = async (io, socket, data) => {
       if (exists) {
         await readMessage(io, socket, senderId, chat.chatId);
 
-        socket.broadcast.to(chat.chatId).emit("receive message", { chat }); //? i think this is not nessacary because the receiver is already offline so he went get the message
         socket.emit("message sent", { chat });
       } else {
         socket.emit("message sent", { chat });
