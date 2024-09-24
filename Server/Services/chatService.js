@@ -19,7 +19,6 @@ const saveMessage = async (data) => {
     let newChat = exists;
     if (!newChat) {
       newChat = await Chat.create({}, { transaction });
-      data.chatId = newChat.id;
       await newChat.addParticipants([sender, receiver], { transaction });
     }
 
