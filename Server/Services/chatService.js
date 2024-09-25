@@ -1,5 +1,6 @@
 const { User, Chat, ChatMessage } = require("../Models/index");
 const sequelize = require("../config/database");
+const {Op} = require('sequelize');
 
 
 const saveMessage = async (data) => {
@@ -54,6 +55,46 @@ const readMessage = async (io, socket, userId, roomId) => {
   }
 };
 
+/** 
+* @param {Integer} chatId 
+* @returns {Object}
+*/
+const chatexists = async (receiverId, senderId) => {
+   try {
+       const chat = await Chat.findOne({
+           include: [
+               {
+                   model: User,
+                   as: 'participants',
+                   attributes: [], // Exclude participant attributes if not needed
+                   through: {
+                       attributes: []
+                   },
+                   where: {
+                       id: [senderId, receiverId]
+                   }
+               }
+           ],
+           where: {
+               id: {
+                   [Op.in]: sequelize.literal(`
+                       (
+                           SELECT "chat_id"
+                           FROM "participant"
+                           WHERE "user_id" IN (${senderId}, ${receiverId})
+                           GROUP BY "chat_id"
+                           HAVING COUNT(DISTINCT "user_id") = 2
+                       )
+                   `)
+               }
+           }
+         });
+       return chat ? chat : null;
+   } catch (err) {
+       throw new Error(err)
+   }
+};
+
 /**
  * privatemessaging - function for the logic of the socket event (private message)
  * @param {Object} io 
@@ -74,34 +115,7 @@ const privatemessaging = async (io, socket, data) => {
     // }
   try {
     const receiver = await User.findByPk(receiverId);
-    /**
-     * 
-     * @param {Integer} chatId 
-     * @returns {Object}
-     */
-    const chatexists = async (chatId, receiverId, senderId) => {
-
-        try {
-            const chat = await Chat.findByPk(chatId);
-            if (!chat) {
-                return null;
-            }
-            const participants = await chat.getParticipants();
-            const areBothParticipants = [senderId, receiverId].every(id => 
-                participants.some(participant => participant.id === id)
-            );
-            if (areBothParticipants) {
-                return chat;
-            } else {
-                throw new Error("chat id is wrong");
-            }
-        } catch (err) {
-            throw new Error(err)
-        }
-    };
-
-    const exists = await chatexists(roomId, senderId, receiverId);
-    exports.roomexists = exists;
+    const exists = await chatexists(senderId, receiverId);
 
     if (receiver && receiver.socketId) {
       const chatId = roomId;
@@ -173,4 +187,5 @@ module.exports = {
   privatemessaging,
   joinRoom,
   readMessage,
+  chatexists
 };

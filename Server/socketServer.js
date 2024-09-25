@@ -1,7 +1,7 @@
 const { Server } = require("socket.io");
 const { User } = require("./Models/index");
 const {ChatMessage, Chat} = require("./Models/index")
-const {roomexists, joinRoom} = require("./Services/chatService");
+const {chatexists, joinRoom} = require("./Services/chatService");
 const { where } = require("sequelize");
 // const socketUtils = require('./utils/socketUtils');
 
@@ -33,7 +33,7 @@ module.exports = function(server) {
 
       pending_messages.forEach(async message => {
         await ChatMessage.update({status: "deliverd"}, {where: {id: message.dataValues.id, status: "pending"} });
-        if (roomexists) {
+        if (chatexists(message.dataValues.senderId, user.id)) {
           socket.emit("receive message", {message});
         } else {
           socket.emit("new chat", { chatId: message.chatId });
