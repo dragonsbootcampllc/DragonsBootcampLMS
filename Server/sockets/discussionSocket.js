@@ -2,8 +2,12 @@ const discussionService = require("../Services/discussionService");
 
 module.exports = (io, socket) => {
     socket.on("createThread", async (threadData) => {
-        const newThread = await discussionService.createThread(threadData);
-        io.emit("newThread", newThread);
+        try {
+            const newThread = await discussionService.createThread(threadData);
+            io.emit("newThread", newThread);
+        } catch (error) {
+            socket.emit("threadCreationError", { message: `Failed to create thread: ${error.message}` });
+        }
     });
 
     socket.on("newThreadMessage", async (messageData) => {

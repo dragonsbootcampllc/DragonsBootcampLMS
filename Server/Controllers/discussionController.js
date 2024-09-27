@@ -1,13 +1,11 @@
 const ApiError = require("../utils/ApiError");
 const asyncHandler = require('express-async-handler');
 const { DiscussionThread, DiscussionPost ,ThreadParticipant } = require('../Models/index');
-const { io } = require('../server');
 
 exports.createDiscussion = asyncHandler(async (req, res, next) => {
     try {
         const { title, linkedToId, linkedToType } = req.body;
         const createdBy = req.user.id;
-        const io = req.app.get('socketio');
 
         if (!title || !linkedToId || !linkedToType) {
             return next(new ApiError('Title, linkedToId, and linkedToType are required to create a discussion', 400));
@@ -15,7 +13,6 @@ exports.createDiscussion = asyncHandler(async (req, res, next) => {
         
         
         const discussion = await DiscussionThread.create({ title, createdBy, linkedToId, linkedToType });
-        io.emit('new_thread', newThread);
         res.status(201).json({
             success: true,
             message: 'Discussion thread created successfully',
@@ -110,9 +107,6 @@ exports.postMessage = asyncHandler(async (req, res, next) => {
             userId,
             post,
         });
-
-        const io = req.app.get('socketio');
-        io.to(`thread_${threadId}`).emit('newMessageInThread', newPost);
 
         res.status(201).json({
             success: true,
