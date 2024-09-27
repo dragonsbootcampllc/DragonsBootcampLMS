@@ -64,12 +64,15 @@ exports.findThreadById = async (threadId) => {
 
 exports.createThread = async (threadData) => {
     const { linkedToId, linkedToType, createdBy, title } = threadData;
+    console.log(`Creating thread for linkedToId: ${linkedToId}, linkedToType: ${linkedToType}, createdBy: ${createdBy}, title: ${title}`);
 
     try {
-        await checkEntityAndProgress(linkedToType, linkedToId, createdBy);
-        return await DiscussionThread.create({ title, createdBy, linkedToId, linkedToType });
+        await exports.checkEntityAndProgress(linkedToType, linkedToId, createdBy);
+        const newThread = await DiscussionThread.create({ title, createdBy, linkedToId, linkedToType });
+        console.log("Thread created successfully: ", newThread);
+        return newThread;
     } catch (error) {
-        console.error(`Error creating thread with linkedToId: ${linkedToId}, linkedToType: ${linkedToType}`);
+        console.error(`Error creating thread with linkedToId: ${linkedToId}, linkedToType: ${linkedToType}`, error);
         throw new Error("Error creating thread: " + error.message);
     }
 };
