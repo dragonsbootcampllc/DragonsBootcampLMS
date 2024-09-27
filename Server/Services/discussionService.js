@@ -1,41 +1,41 @@
 const { Course, Lecture, Task, UserCourseProgress, UserLectureProgress,UserTaskProgress,DiscussionPost, ThreadParticipant, DiscussionThread } = require("../Models");
 
-async function checkEntityAndProgress(linkedToType, linkedToId, userId) {
-    const entityMap = {
-        course: { model: Course},
-        lecture: { model: Lecture}, 
-    };
+exports.checkEntityAndProgress = async (linkedToType, linkedToId, userId) => {
+        const entityMap = {
+            course: { model: Course },
+            lecture: { model: Lecture },
+        };
 
-    if (!entityMap[linkedToType]) {
-        throw new Error(`Invalid linkedToType: ${linkedToType}. Expected one of 'course', 'lecture'.`);
-    }
-
-    const { model } = entityMap[linkedToType];
-
-    const entity = await model.findByPk(linkedToId);
-
-    if (!entity) {
-        const notFoundMessage = `${linkedToType.charAt(0).toUpperCase() + linkedToType.slice(1)} not found.`;
-        throw new Error(notFoundMessage);
-    }
-
-    // For lectures, check if the user has made progress in the associated course
-    if (linkedToType === 'lecture') {
-        const courseId = entity.courseId; 
-        if (!courseId) {
-            throw new Error('Lecture is not associated with any course.');
+        if (!entityMap[linkedToType]) {
+            throw new Error(`Invalid linkedToType: ${linkedToType}. Expected one of 'course', 'lecture'.`);
         }
 
-        const courseProgress = await UserCourseProgress.findOne({
-            where: { courseId, userId },
-        });
+        const { model } = entityMap[linkedToType];
 
-        if (!courseProgress) {
-            throw new Error('You have not made any progress in the course associated with the selected lecture.');
+        const entity = await model.findByPk(linkedToId);
+        if (!entity) {
+            const notFoundMessage = `${linkedToType.charAt(0).toUpperCase() + linkedToType.slice(1)} not found.`;
+            throw new Error(notFoundMessage);
         }
-    }
-    return true;
-}
+
+        // For lectures, check if the user has made progress in the associated course
+        if (linkedToType === 'lecture') {
+            const courseId = entity.courseId; 
+            if (!courseId) {
+                throw new Error('Lecture is not associated with any course.');
+            }
+
+            const courseProgress = await UserCourseProgress.findOne({
+                where: { courseId, userId },
+            });
+
+            if (!courseProgress) {
+                throw new Error('You have not made any progress in the course associated with the selected lecture.');
+            }
+        }
+        
+        return true; 
+};
 
 
 exports.savePost = async (postData) => {
