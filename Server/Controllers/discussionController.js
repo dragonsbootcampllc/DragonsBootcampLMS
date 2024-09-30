@@ -1,7 +1,8 @@
 const ApiError = require("../utils/ApiError");
 const asyncHandler = require('express-async-handler');
 const { DiscussionThread, DiscussionPost ,ThreadParticipant } = require('../Models/index');
-const { checkEntityAndProgress } = require('../Services/discussionService'); // Import the function
+const { checkEntityAndProgress } = require('../Services/discussionService'); 
+const discussionService = require("../Services/discussionService");
 
 
 exports.createDiscussion = asyncHandler(async (req, res, next) => {
@@ -112,7 +113,7 @@ exports.postMessage = asyncHandler(async (req, res, next) => {
         });
 
         if (!isParticipant) {
-            return res.status(403).json({ message: "You must join the thread before posting a message." });
+            await discussionService.addThreadParticipant(threadId, userId);
         }
 
         const newPost = await DiscussionPost.create({
