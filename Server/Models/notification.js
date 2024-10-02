@@ -29,6 +29,11 @@ Notification.init({
     type: DataTypes.BOOLEAN,
     defaultValue: false,
   },
+  deliverd: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true,
+  }
+  
 }, {
   sequelize,
   modelName: 'Notification',

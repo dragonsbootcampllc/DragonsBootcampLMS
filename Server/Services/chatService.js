@@ -1,6 +1,7 @@
 const { User, Chat, ChatMessage } = require("../Models/index");
 const sequelize = require("../config/database");
 const {Op} = require('sequelize');
+const {sendNotification, notifyUsers} = require("./notificationService");
 
 
 const saveMessage = async (data) => {
@@ -115,7 +116,7 @@ const privatemessaging = async (io, socket, data) => {
     // }
   try {
     const receiver = await User.findByPk(receiverId);
-    const exists = await chatexists(senderId, receiverId);
+    const exists = await chatexists(senderId, receiver.id);
 
     if (receiver && receiver.socketId) {
       const chatId = roomId;
@@ -140,6 +141,12 @@ const privatemessaging = async (io, socket, data) => {
         // socket.to(chat.chatId).emit("receive message", { chat });
         socket.emit("message sent", { chat });
       }
+      const payload = {
+        "content": chat.message
+      }
+
+
+      await notifyUsers({io, users: [receiver], type: "message", payload});
     } else {
       const chat = await saveMessage({
         exists,
@@ -158,6 +165,10 @@ const privatemessaging = async (io, socket, data) => {
       } else {
         socket.emit("message sent", { chat });
       }
+         const payload = {
+        "content": chat.message
+      }
+      await notifyUsers(io, [receiver], "message", payload);
     }
   } catch (err) {
     socket.emit("message sent", err.message);

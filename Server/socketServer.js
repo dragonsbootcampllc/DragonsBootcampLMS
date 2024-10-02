@@ -2,6 +2,7 @@ const { Server } = require("socket.io");
 const { User } = require("./Models/index");
 const {ChatMessage, Chat} = require("./Models/index")
 const {chatexists, joinRoom} = require("./Services/chatService");
+const {deliverNotification, subscribeToNotifications} = require("./Services/notificationService");
 const { where } = require("sequelize");
 // const socketUtils = require('./utils/socketUtils');
 
@@ -19,6 +20,8 @@ module.exports = function(server) {
     try {
       //switch user status to online
       await joinRoom(user, socket);
+      subscribeToNotifications(socket);
+      await deliverNotification(io, socket);
 
       await User.update({socketId: socket.id, online: true}, {where: { id: user.id }});
       user.socketId = socket.id;
