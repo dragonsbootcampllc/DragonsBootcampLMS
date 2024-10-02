@@ -1,4 +1,4 @@
-const chatService = require("../services/chatService");
+const chatService = require("../Services/chatService");
 
 module.exports = (io, socket) => {
   socket.on("joinChat", (chatId) => {
