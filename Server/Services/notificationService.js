@@ -1,46 +1,40 @@
-const { Notification,  UserCourseProgress,ThreadParticipant } = require("../Models");
+const Notification = require('./models/notification'); // adjust path if needed
+const UserPreference = require('./models/userPreference'); // adjust path if needed
 
-exports.createNotification = async (notificationData) => {
-    try {
-        const notification = await Notification.create(notificationData);
-        return notification;
-    } catch (err) {
-        throw new Error(err.message);
-    }
-};
+async function notification(io, { event, userId, message, type, roomId = "notification" }) {
+try {
+    // Fetch user preferences
+    const userPreference = await UserPreference.findOne({ where: { userId } });
 
-// Function to emit notifications by socket
-exports.emitNotification = (io, userId, message, threadId, postId) => {
-    io.to(`notifications_${userId}`).emit('newNotification', {
-        message,
-        threadId,
-        postId,
-    });
-};
-
-// Function to notify multiple users
-exports.notifyUsers = async (io, userIds, notificationMessage, threadId, postId) => {
-    const notifications = userIds.map(userId => ({
+    // Proceed if user has notifications enabled
+    if (userPreference?.notification) {
+    // Create a new notification in the database
+    const newNotification = await Notification.create({
         userId,
-        notificationType: 'new_message',
+        notificationType: type,
         notificationContent: {
-            message: notificationMessage,
-            threadId,
-            postId,
-        }
-    }));
-
-    // Emit notifications for each user
-    userIds.forEach(userId => {
-        this.emitNotification(io, userId, notificationMessage, threadId, postId);
+        title: message.title,
+        body: message.body,
+        },
     });
 
-    // Save notifications to the database
-    try {
-        const createdNotifications = await Notification.bulkCreate(notifications);
-        console.log('Notifications created:', createdNotifications);
-    } catch (notificationError) {
-        console.error('Error creating notifications:', notificationError);
-        throw new Error('Failed to create notifications');
+    // Determine event to emit, defaulting to roomId if event isn't passed
+    const eventToEmit = event || roomId;
+
+    // Emit notification to the room or event
+    io.to(roomId).emit(eventToEmit, {
+        userId,
+        type: newNotification.notificationType,
+        content: newNotification.notificationContent,
+    });
+
+    console.log(`Notification sent to user ${userId} in room ${roomId} via event: ${eventToEmit}`);
+    } else {
+    console.log(`Notifications are disabled for user ${userId}`);
     }
-};
+} catch (error) {
+    console.error('Error sending notification:', error);
+}
+}
+
+module.exports = notification;
