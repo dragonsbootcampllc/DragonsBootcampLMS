@@ -42,6 +42,7 @@ chatId: {
 status: {
   type: DataTypes.ENUM("read", "deliverd", "pending"),
   defaultValue: "deliverd"
+}
 }, {
   sequelize,
   modelName: 'ChatMessage',
