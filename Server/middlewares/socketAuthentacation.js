@@ -13,7 +13,6 @@ const authenticate = (socket, next) => {
     }
 
     jwt.verify(token, process.env.JWT_SECRET_KEY, asyncHandler(async(err, decoded) => {
-        //todo: should i check if the user exists and verified or is itn't nessecary?
         const user = await User.findByPk(decoded.id);
         if (!user) {
             return next(
