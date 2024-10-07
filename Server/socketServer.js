@@ -46,9 +46,12 @@ module.exports = function(server) {
     }
     console.log(user);
 
-    // Initialize chat socket events
+    // Initialize chat socket events  
     require('./sockets/chatSocket')(io, socket);
-
+    
+    // Initialize discussion socket events
+    require('./sockets/discussionSocket')(io, socket);
+    
     // Initialize notification socket events
     require('./sockets/notificationSocket')(io, socket);
 

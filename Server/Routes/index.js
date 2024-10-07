@@ -10,6 +10,7 @@ const categoryRoutes = require('./categoryRoutes');
 const chatRoutes = require('./chatRouters');
 const discussionRoutes = require('./discussionRoutes');
 
+router.use("/discussion", discussionRoutes);
 router.use("/auth",authRoutes);
 router.use("/user",userRoutes);
 router.use("/tasks", taskRoutes);

@@ -23,6 +23,7 @@ const Tag = require('./tag');
 const Category = require('./category');
 const UserTaskProgress = require('./userTaskPrpgress');
 const UserLectureProgress = require("./userlectureprogress");
+const ThreadParticipant = require("./threadParticipant");
 
 
 
@@ -102,8 +103,6 @@ BookResource.belongsTo(User, { foreignKey: "uploadedBy" });
 User.hasMany(Content, { foreignKey: "uploadedBy" });
 Content.belongsTo(User, { foreignKey: "uploadedBy" });
 
-User.hasMany(DiscussionThread, { foreignKey: "createdBy" });
-DiscussionThread.belongsTo(User, { foreignKey: "createdBy" });
 
 Content.belongsToMany(Tag, { through: "ContentTags" ,  as: "contentTags", foreignKey: "contentId"});
 Tag.belongsToMany(Content, { through: "ContentTags" ,  as: "contents", foreignKey: "tagId"});
@@ -111,12 +110,18 @@ Tag.belongsToMany(Content, { through: "ContentTags" ,  as: "contents", foreignKe
 Content.belongsToMany(Category, { through: "ContentCategories" ,  as: "contentCategories", foreignKey: "contentId"});
 Category.belongsToMany(Content, { through: "ContentCategories" ,  as: "contents", foreignKey: "categoryId"});
 
+User.hasMany(DiscussionThread, { foreignKey: "createdBy" });
+DiscussionThread.belongsTo(User, { foreignKey: "createdBy" });
 
 DiscussionThread.hasMany(DiscussionPost, { foreignKey: "threadId" });
 DiscussionPost.belongsTo(DiscussionThread, { foreignKey: "threadId" });
 
 User.hasMany(DiscussionPost, { foreignKey: "userId" });
 DiscussionPost.belongsTo(User, { foreignKey: "userId" });
+
+
+User.belongsToMany(DiscussionThread, { through: ThreadParticipant, foreignKey: 'userId', as: 'participatingThreads' });
+DiscussionThread.belongsToMany(User, { through: ThreadParticipant, foreignKey: 'threadId',as: 'participants'});
 
 Chat.hasMany(ChatMessage, { foreignKey: 'chatId', as: 'Messages' });
 ChatMessage.belongsTo(Chat, { foreignKey: 'chatId', as: 'Chat' });
@@ -156,4 +161,6 @@ module.exports = {
   Category,
   UserTaskProgress,
   UserLectureProgress,
+  ThreadParticipant,
 };
+

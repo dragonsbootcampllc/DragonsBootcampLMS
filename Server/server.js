@@ -30,6 +30,7 @@ const server = http.createServer(app);
 const io = socketServer(server);
 io.use(authenticate);
 
+
 server.listen(PORT, async () => {
   console.log(`Server is running on port ${PORT}`);
 });
