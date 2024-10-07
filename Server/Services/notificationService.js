@@ -1,5 +1,5 @@
-const Notification = require('./models/notification'); // adjust path if needed
-const UserPreference = require('./models/userPreference'); // adjust path if needed
+const { Notification } = require("../Models/index");
+const UserPreference = require('./models/userPreference');
 
 async function notification(io, { event, userId, message, type, roomId = "notification" }) {
 try {
