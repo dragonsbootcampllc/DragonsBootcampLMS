@@ -1,4 +1,5 @@
 const notificationService = require('../services/notificationService');
+const { User } = require("../Models/index");
 
 module.exports = (io, socket) => {
     socket.on('subscribeToNotifications', (userId) => {
@@ -7,8 +8,6 @@ module.exports = (io, socket) => {
   
     socket.on('sendNotification', async (notificationData) => {
       // Persist the notification and emit it to the user
-      const notification = await notificationService.createNotification(notificationData);
-      io.to(`notifications_${notificationData.userId}`).emit('newNotification', notification);
     });
   };
   

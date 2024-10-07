@@ -13,6 +13,7 @@ const BookResource = require("./book_resource");
 const DiscussionThread = require("./discussion_thread");
 const DiscussionPost = require("./discussion_post");
 const ChatMessage = require("./chat_message");
+const Chat = require("./chat");
 const Notification = require("./notification");
 const Lecture = require('./lecture');
 const Task = require('./task');
@@ -28,6 +29,17 @@ const ThreadParticipant = require("./threadParticipant");
 
 
 // Define associations
+DiscussionThread.belongsTo(Lecture, {foreignKey: 'linkedToId',constraints: false,
+  scope: {
+    linkedToType: 'Lecture',
+  },
+});
+
+DiscussionThread.belongsTo(Course, {foreignKey: 'linkedToId',constraints: false,
+  scope: {
+    linkedToType: 'Course',
+  },
+});
 User.hasOne(UserCourseProgress,{foreignKey:"userId"})
 UserCourseProgress.belongsTo(User,{foreignKey:"userId"})
 
@@ -107,14 +119,14 @@ DiscussionPost.belongsTo(DiscussionThread, { foreignKey: "threadId" });
 User.hasMany(DiscussionPost, { foreignKey: "userId" });
 DiscussionPost.belongsTo(User, { foreignKey: "userId" });
 
+
 User.belongsToMany(DiscussionThread, { through: ThreadParticipant, foreignKey: 'userId', as: 'participatingThreads' });
 DiscussionThread.belongsToMany(User, { through: ThreadParticipant, foreignKey: 'threadId',as: 'participants'});
 
-
-User.hasMany(ChatMessage, { foreignKey: "senderId", as: "SentMessages" });
-User.hasMany(ChatMessage, { foreignKey: "receiverId", as: "ReceivedMessages" });
-ChatMessage.belongsTo(User, { foreignKey: "senderId", as: "Sender" });
-ChatMessage.belongsTo(User, { foreignKey: "receiverId", as: "Receiver" });
+Chat.hasMany(ChatMessage, { foreignKey: 'chatId', as: 'Messages' });
+ChatMessage.belongsTo(Chat, { foreignKey: 'chatId', as: 'Chat' });
+User.belongsToMany(Chat, { through: 'participant', as: 'chats', foreignKey: 'user_id'});
+Chat.belongsToMany(User, { through: 'participant', as: 'participants', foreignKey: 'chat_id'});
 
 User.hasMany(Notification, { foreignKey: "userId" });
 Notification.belongsTo(User, { foreignKey: "userId" });
@@ -140,6 +152,7 @@ module.exports = {
   DiscussionThread,
   DiscussionPost,
   ChatMessage,
+  Chat,
   Notification,
   Lecture,
   Task,
@@ -150,3 +163,4 @@ module.exports = {
   UserLectureProgress,
   ThreadParticipant,
 };
+

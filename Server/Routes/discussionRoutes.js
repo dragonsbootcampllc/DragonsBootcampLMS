@@ -1,4 +1,5 @@
 const {createDiscussion, updateDiscussion, deleteDiscussion, getMessages, postMessage} = require('../Controllers/discussionController');
+
 const express = require('express');
 const router = express.Router();
 const protect = require('../middlewares/protect');
@@ -145,7 +146,6 @@ const protect = require('../middlewares/protect');
 router.post('/', protect,createDiscussion);
 router.put('/:id', protect, updateDiscussion);
 router.delete('/:id', protect, deleteDiscussion);
-
 router.post('/:id/messages',protect, postMessage);
 router.get('/:id/messages', getMessages);
 module.exports = router;

@@ -1,4 +1,4 @@
-const { getAllUsers } = require("../Controllers/userController");
+const { getAllUsers, getMe } = require("../Controllers/userController");
 const protect = require('../middlewares/protect');
 const { userPreferncesValidator } = require('../utils/validators/prefernecesValidatior');
 const { getpreferneces, updatePreferences } = require('../Controllers/userPreferenecsController');
@@ -23,6 +23,41 @@ const router = require("express").Router();
  *               $ref: '#/components/schemas/User'
  *       '500':
  *         description: Internal server error
+ */
+/**
+ * @swagger
+ * /api/user/me:
+ *   get:
+ *     summary: Get current user information
+ *     description: Returns the details of the authenticated user (id, username, email, and role).
+ *     security:
+ *       - bearerAuth: []
+ *     tags:
+ *       - Users
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved user information.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: integer
+ *                   example: 1
+ *                 username:
+ *                   type: string
+ *                   example: johndoe
+ *                 email:
+ *                   type: string
+ *                   example: johndoe@example.com
+ *                 role:
+ *                   type: string
+ *                   example: admin
+ *       401:
+ *         description: Unauthorized, user must be authenticated.
+ *       500:
+ *         description: Internal server error.
  */
 
 /**
@@ -202,6 +237,7 @@ const router = require("express").Router();
  */
 
 router.get("/",protect,verifyRole(['admin']), getAllUsers);
+router.get("/me",protect, getMe);
 
 //user preferences routes
 router.get("/preferences", protect, getpreferneces);

@@ -4,7 +4,6 @@ const { DiscussionThread, DiscussionPost ,ThreadParticipant } = require('../Mode
 const { checkEntityAndProgress } = require('../Services/discussionService'); 
 const discussionService = require("../Services/discussionService");
 
-
 exports.createDiscussion = asyncHandler(async (req, res, next) => {
     try {
         const { title, linkedToId, linkedToType } = req.body;
@@ -38,6 +37,7 @@ exports.createDiscussion = asyncHandler(async (req, res, next) => {
         next(new ApiError('Failed to create discussion thread', 500));
     }
 });
+
 exports.updateDiscussion = asyncHandler(async (req, res, next) => {
     try {
         const { id } = req.params;
